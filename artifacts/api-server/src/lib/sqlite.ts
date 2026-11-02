@@ -306,6 +306,29 @@ try {
 
 export const db = dbInstance;
 export const activeDatabasePath = dbPath;
+
+function runDatabaseStartupInitialization() {
+  db.exec("PRAGMA foreign_keys = OFF;");
+  try {
+    initSchema();
+    ensureUsersColumns();
+    runMigrations();
+    seedData();
+    ensureDefaultAccountingChart();
+    syncSupplierAccounts();
+    ensureUmrahPilgrimsData();
+    ensureTravelHotelsColumns();
+    ensureTravelBusBookingsColumns();
+    ensureTravelVisasColumns();
+    fixTravelForeignKeys();
+    seedWorkReportsAndPDFData();
+  } catch (err) {
+    console.error("Error during database startup initialization/seeding:", err);
+  }
+  db.exec("PRAGMA foreign_keys = ON;");
+}
+
+runDatabaseStartupInitialization();
 export function getActiveDatabasePath(): string {
   return dbPath;
 }
@@ -7618,17 +7641,7 @@ function ensureUsersColumns() {
   }
 }
 
-initSchema();
-ensureUsersColumns();
-runMigrations();
-seedData();
-ensureDefaultAccountingChart();
-syncSupplierAccounts();
-ensureUmrahPilgrimsData();
-ensureTravelHotelsColumns();
-ensureTravelBusBookingsColumns();
-ensureTravelVisasColumns();
-fixTravelForeignKeys();
+
 
 export function createDoubleEntryJournal(
   entryDate: string,
@@ -8056,12 +8069,7 @@ export function seedWorkReportsAndPDFData(): void {
   }
 }
 
-// Automatically trigger seeding on backend start
-try {
-  seedWorkReportsAndPDFData();
-} catch (e) {
-  console.error("Auto seed execution error:", e);
-}
+
 
 export function deleteJournalBySource(sourceType: string, sourceId: number): void {
   try {
