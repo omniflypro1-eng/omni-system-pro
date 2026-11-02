@@ -34,7 +34,19 @@ export default function Dashboard() {
   const { data: settings } = useGetSettings();
   const updateSettingsMutation = useUpdateSettings();
 
-  const [isMobileAppView, setIsMobileAppView] = useState(false);
+  const [isMobileAppView, setIsMobileAppView] = useState(() => {
+    return typeof window !== "undefined" && window.innerWidth < 768;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setIsMobileAppView(true);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const { data: paymentRows = [] } = useQuery<any[]>({
     queryKey: ["dash-payment"],
