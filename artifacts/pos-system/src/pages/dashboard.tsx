@@ -3,7 +3,7 @@ import { AdminLayout } from "@/components/admin-layout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useGetDashboardSummary, useGetTopProducts, useGetSalesByHour, useGetSettings, useUpdateSettings } from "@workspace/api-client-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, DollarSign, Receipt, TrendingUp, Package, Users, ShoppingCart, Percent, Sparkles, Building2 } from "lucide-react";
+import { Loader2, DollarSign, Receipt, TrendingUp, Package, Users, ShoppingCart, Percent, Sparkles, Building2, Smartphone, Monitor, Plus, Bell, RefreshCw, Send, Wallet, UserCheck, Coins, Briefcase, Ruler, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -33,6 +33,8 @@ export default function Dashboard() {
   const { data: salesByHour, isLoading: isLoadingSalesByHour } = useGetSalesByHour();
   const { data: settings } = useGetSettings();
   const updateSettingsMutation = useUpdateSettings();
+
+  const [isMobileAppView, setIsMobileAppView] = useState(false);
 
   const { data: paymentRows = [] } = useQuery<any[]>({
     queryKey: ["dash-payment"],
@@ -76,7 +78,6 @@ export default function Dashboard() {
       initialized: "true"
     }, {
       onSuccess: () => {
-        // Also update default safe's currency
         const token = localStorage.getItem("pos_token") ?? "";
         fetch("/api/safes", { headers: { Authorization: `Bearer ${token}` } })
           .then(r => r.json())
@@ -104,12 +105,148 @@ export default function Dashboard() {
 
   const avgOrderValue = summary && summary.todayOrders > 0 ? summary.todaySales / summary.todayOrders : 0;
 
+  if (isMobileAppView) {
+    return (
+      <AdminLayout>
+        <div className="max-w-md mx-auto bg-slate-900 text-white rounded-2xl shadow-2xl overflow-hidden border border-slate-700 my-2 relative">
+          <div className="bg-blue-600 px-4 py-3 flex items-center justify-between shadow-md">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-lg tracking-wide">أومي سيستم برو</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={() => qc.invalidateQueries()} title="تحديث" className="p-1.5 hover:bg-blue-700 rounded-full transition"><RefreshCw className="w-4 h-4" /></button>
+              <button title="الإشعارات" className="p-1.5 hover:bg-blue-700 rounded-full transition relative"><Bell className="w-4 h-4" /><span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span></button>
+              <Button size="sm" variant="ghost" onClick={() => setIsMobileAppView(false)} className="text-white hover:bg-blue-700 text-xs px-2.5 py-1 h-7">
+                <Monitor className="w-3.5 h-3.5 ml-1" /> لوحة الكمبيوتر
+              </Button>
+            </div>
+          </div>
+
+          <div className="p-3 bg-slate-950 space-y-4">
+            <div className="grid grid-cols-3 gap-2">
+              <Button onClick={() => window.location.href = "/vouchers"} className="bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold py-2.5 h-auto flex flex-col items-center justify-center rounded-xl shadow">
+                <span>سند جديد</span>
+              </Button>
+              <Button onClick={() => window.location.href = "/travel-bookings"} className="bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold py-2.5 h-auto flex flex-col items-center justify-center rounded-xl shadow">
+                <span>حوالة جديدة</span>
+              </Button>
+              <Button onClick={() => window.location.href = "/accounting"} className="bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold py-2.5 h-auto flex flex-col items-center justify-center rounded-xl shadow">
+                <span>كشف حساب</span>
+              </Button>
+              <Button onClick={() => window.location.href = "/accounting"} className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-2.5 h-auto flex flex-col items-center justify-center rounded-xl shadow">
+                <span>قيد بسيط</span>
+              </Button>
+              <Button onClick={() => window.location.href = "/reports"} className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-2.5 h-auto flex flex-col items-center justify-center rounded-xl shadow">
+                <span>الحركة اليومية</span>
+              </Button>
+              <Button onClick={() => window.location.href = "/safes"} className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-2.5 h-auto flex flex-col items-center justify-center rounded-xl shadow">
+                <span>صناديق النقدية</span>
+              </Button>
+              <Button onClick={() => window.location.href = "/pos"} className="bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold py-2.5 h-auto flex flex-col items-center justify-center rounded-xl shadow">
+                <span>فاتورة جديدة</span>
+              </Button>
+              <Button onClick={() => window.location.href = "/currencies"} className="bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold py-2.5 h-auto flex flex-col items-center justify-center rounded-xl shadow">
+                <span>صرف عملات</span>
+              </Button>
+              <Button onClick={() => window.location.href = "/orders"} className="bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold py-2.5 h-auto flex flex-col items-center justify-center rounded-xl shadow">
+                <span>البحث السريع</span>
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pb-16">
+              <div onClick={() => window.location.href = "/customers"} className="bg-white text-slate-900 rounded-2xl p-4 shadow-lg flex flex-col items-center text-center cursor-pointer hover:bg-slate-50 transition border border-slate-200">
+                <div className="w-12 h-12 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center mb-2 shadow-inner">
+                  <Users className="w-6 h-6" />
+                </div>
+                <h3 className="font-bold text-slate-800 text-sm">العملاء</h3>
+                <p className="text-xs font-bold text-red-600 mt-1">{summary?.totalCustomers || 0} عميل</p>
+              </div>
+
+              <div onClick={() => window.location.href = "/suppliers"} className="bg-white text-slate-900 rounded-2xl p-4 shadow-lg flex flex-col items-center text-center cursor-pointer hover:bg-slate-50 transition border border-slate-200">
+                <div className="w-12 h-12 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center mb-2 shadow-inner">
+                  <UserCheck className="w-6 h-6" />
+                </div>
+                <h3 className="font-bold text-slate-800 text-sm">الموردين</h3>
+                <p className="text-xs font-bold text-red-600 mt-1">مورد معتمد</p>
+              </div>
+
+              <div onClick={() => window.location.href = "/accounting"} className="bg-white text-slate-900 rounded-2xl p-4 shadow-lg flex flex-col items-center text-center cursor-pointer hover:bg-slate-50 transition border border-slate-200">
+                <div className="w-12 h-12 bg-red-100 text-red-700 rounded-full flex items-center justify-center mb-2 shadow-inner">
+                  <Coins className="w-6 h-6" />
+                </div>
+                <h3 className="font-bold text-slate-800 text-sm">الديون والذمم</h3>
+                <p className="text-xs font-bold text-red-600 mt-1">{fmt(summary?.todaySales)}</p>
+              </div>
+
+              <div onClick={() => window.location.href = "/hr"} className="bg-white text-slate-900 rounded-2xl p-4 shadow-lg flex flex-col items-center text-center cursor-pointer hover:bg-slate-50 transition border border-slate-200">
+                <div className="w-12 h-12 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center mb-2 shadow-inner">
+                  <Briefcase className="w-6 h-6" />
+                </div>
+                <h3 className="font-bold text-slate-800 text-sm">الموظفين</h3>
+                <p className="text-xs font-bold text-red-600 mt-1">شؤون العاملين</p>
+              </div>
+
+              <div onClick={() => window.location.href = "/expenses"} className="bg-white text-slate-900 rounded-2xl p-4 shadow-lg flex flex-col items-center text-center cursor-pointer hover:bg-slate-50 transition border border-slate-200">
+                <div className="w-12 h-12 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center mb-2 shadow-inner">
+                  <Wallet className="w-6 h-6" />
+                </div>
+                <h3 className="font-bold text-slate-800 text-sm">الصرفيات</h3>
+                <p className="text-xs font-bold text-red-600 mt-1">المصروفات اليومية</p>
+              </div>
+
+              <div onClick={() => window.location.href = "/inventory"} className="bg-white text-slate-900 rounded-2xl p-4 shadow-lg flex flex-col items-center text-center cursor-pointer hover:bg-slate-50 transition border border-slate-200">
+                <div className="w-12 h-12 bg-purple-100 text-purple-700 rounded-full flex items-center justify-center mb-2 shadow-inner">
+                  <Package className="w-6 h-6" />
+                </div>
+                <h3 className="font-bold text-slate-800 text-sm">أخرى (المخازن)</h3>
+                <p className="text-xs font-bold text-red-600 mt-1">{summary?.totalProducts || 0} صنف</p>
+              </div>
+
+              <div onClick={() => window.location.href = "/units"} className="bg-white text-slate-900 rounded-2xl p-4 shadow-lg flex flex-col items-center text-center cursor-pointer hover:bg-slate-50 transition border border-slate-200">
+                <div className="w-12 h-12 bg-cyan-100 text-cyan-700 rounded-full flex items-center justify-center mb-2 shadow-inner">
+                  <Ruler className="w-6 h-6" />
+                </div>
+                <h3 className="font-bold text-slate-800 text-sm">مقاس جديد</h3>
+                <p className="text-xs font-bold text-red-600 mt-1">الوحدات والقياسات</p>
+              </div>
+
+              <div onClick={() => window.location.href = "/warehouse-operations"} className="bg-white text-slate-900 rounded-2xl p-4 shadow-lg flex flex-col items-center text-center cursor-pointer hover:bg-slate-50 transition border border-slate-200">
+                <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mb-2 shadow-inner">
+                  <Wrench className="w-6 h-6" />
+                </div>
+                <h3 className="font-bold text-slate-800 text-sm">تمثير ومقاسات</h3>
+                <p className="text-xs font-bold text-red-600 mt-1">العمليات والتشغيل</p>
+              </div>
+            </div>
+
+            <div className="absolute bottom-16 left-6">
+              <Button onClick={() => window.location.href = "/pos"} className="w-14 h-14 bg-amber-500 hover:bg-amber-600 text-white rounded-full shadow-2xl flex items-center justify-center text-2xl font-bold">
+                <Plus className="w-8 h-8" />
+              </Button>
+            </div>
+
+            <div className="absolute bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 px-4 py-2 flex items-center justify-between text-xs text-slate-400">
+              <a href="https://t.me" target="_blank" rel="noreferrer" className="hover:text-white transition"><Send className="w-4 h-4" /></a>
+              <span className="font-mono text-[11px]">رقم الإصدار: 135.3.5</span>
+              <a href="https://whatsapp.com" target="_blank" rel="noreferrer" className="hover:text-white transition text-emerald-400 font-bold">واتساب</a>
+            </div>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
   return (
     <AdminLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">لوحة القيادة</h1>
-          <p className="text-sm text-muted-foreground">{new Date().toLocaleDateString("ar-SA", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
+          <div>
+            <h1 className="text-2xl font-bold">لوحة القيادة</h1>
+            <p className="text-sm text-muted-foreground">{new Date().toLocaleDateString("ar-SA", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
+          </div>
+          <Button onClick={() => setIsMobileAppView(true)} className="bg-blue-600 hover:bg-blue-700 text-white gap-2 font-bold shadow">
+            <Smartphone className="w-4 h-4" /> عرض واجهة تطبيق الهاتف
+          </Button>
         </div>
 
         {/* System Initialization Card */}
