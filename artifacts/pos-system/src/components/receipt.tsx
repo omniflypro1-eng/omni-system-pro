@@ -161,6 +161,100 @@ export function MasterReceiptSlip({
   const effPhone = settings?.phone || eff.phone;
   const effTaxNumber = showTaxNum ? (settings?.taxNumber || eff.taxNumber || "") : "";
 
+  const isAlternative = (settings as any)?.useAlternativeReceiptStyle === true;
+
+  if (!isAlternative) {
+    return (
+      <div
+        className="receipt-slip"
+        dir="rtl"
+        style={{
+          paddingTop: `${printerTop}mm`,
+          paddingBottom: `${printerBottom}mm`,
+          paddingLeft: `${printerLeft}mm`,
+          paddingRight: `${printerRight}mm`,
+          marginTop: printerTop < 0 ? `${printerTop}mm` : undefined,
+          marginBottom: printerBottom < 0 ? `${printerBottom}mm` : undefined,
+        }}
+      >
+        <div className="receipt-header text-center pb-2 border-b border-black">
+          {shouldShowLogo && effectiveLogo && (
+            <div className="receipt-logo-wrap flex justify-center my-1">
+              <img src={effectiveLogo} alt="شعار النشاط" className="receipt-logo" style={{ maxHeight: '18mm', maxWidth: '45mm', objectFit: 'contain' }} onError={(e) => { e.currentTarget.src = omnisystemLogo; }} />
+            </div>
+          )}
+          <div className="receipt-business-name font-black text-lg mb-0.5">{businessName}</div>
+          {effAddress && <div className="text-[10px] text-gray-700">{effAddress}</div>}
+          {effPhone && <div className="text-[10px] text-gray-700"><Num>تلفون: {effPhone}</Num></div>}
+          {effTaxNumber && <div className="text-[10px] text-gray-700"><Num>الرقم الضريبي: {effTaxNumber}</Num></div>}
+          {showCopyLabel && copyLabel && (
+            <div className="receipt-copy-label font-bold text-xs bg-gray-100 py-0.5 border border-black inline-block px-3 my-1">
+              {copyLabel}
+            </div>
+          )}
+        </div>
+
+        {showInvoiceTitle && (
+          <div className="text-center font-black text-xs my-1 underline">
+            {eff.invoiceHeaderText || "فاتورة مبيعات قياسية"}
+          </div>
+        )}
+
+        <div className="text-xs space-y-1 border-b border-black py-1.5 my-1 font-bold">
+          <div className="flex justify-between"><span>رقم الفاتورة:</span><span className="font-mono"><Num>#{order.invoiceNumber || cleanInvoiceNumber}</Num></span></div>
+          <div className="flex justify-between"><span>التاريخ والوقت:</span><span><Num>{date} {time}</Num></span></div>
+          <div className="flex justify-between"><span>نوع الطلب:</span><span>{orderTypeLabel}</span></div>
+          {cashierName && <div className="flex justify-between"><span>الكاشير:</span><span>{cashierName}</span></div>}
+          {order.tableNumber && <div className="flex justify-between"><span>الطاولة / السند:</span><span><Num>{order.tableNumber}</Num></span></div>}
+        </div>
+
+        <table className="receipt-table w-full text-xs mb-2 border-collapse border border-black">
+          <thead>
+            <tr className="bg-gray-100 border-b border-black">
+              <th className="text-right p-1 border border-black">الصنف</th>
+              <th className="text-center p-1 border border-black">الكمية</th>
+              <th className="text-left p-1 border border-black">السعر</th>
+            </tr>
+          </thead>
+          <tbody>
+            {order.items?.map((item, idx) => (
+              <tr key={idx} className="border-b border-black">
+                <td className="text-right p-1 border border-black">{item.productName}</td>
+                <td className="text-center p-1 border border-black"><Num>{item.quantity}</Num></td>
+                <td className="text-left p-1 border border-black"><Num>{item.unitPrice.toLocaleString("en-US")}</Num></td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colSpan={2} className="text-right font-bold p-1 border border-black">المجموع الفرعي:</td>
+              <td className="text-left font-bold p-1 border border-black"><Num>{order.subtotal.toLocaleString("en-US")}</Num></td>
+            </tr>
+            {(order.discount ?? 0) > 0 && (
+              <tr>
+                <td colSpan={2} className="text-right font-bold p-1 border border-black text-destructive">الخصم:</td>
+                <td className="text-left font-bold p-1 border border-black text-destructive"><Num>-{(order.discount ?? 0).toLocaleString("en-US")}</Num></td>
+              </tr>
+            )}
+            {(order.tax ?? 0) > 0 && (
+              <tr>
+                <td colSpan={2} className="text-right font-bold p-1 border border-black">الضريبة (<Num>{taxRate}</Num>%):</td>
+                <td className="text-left font-bold p-1 border border-black"><Num>{(order.tax ?? 0).toLocaleString("en-US")}</Num></td>
+              </tr>
+            )}
+            <tr className="font-black text-sm bg-gray-100">
+              <td colSpan={2} className="text-right p-1.5 border border-black">الإجمالي النهائي:</td>
+              <td className="text-left p-1.5 border border-black"><Num>{order.total.toLocaleString("en-US")} {currency}</Num></td>
+            </tr>
+          </tfoot>
+        </table>
+
+        {footerMsg && <div className="text-center text-xs text-gray-700 my-2">{footerMsg}</div>}
+        {termsMsg && <div className="text-center text-[10px] border border-black py-1 my-1">{termsMsg}</div>}
+      </div>
+    );
+  }
+
   return (
     <div
       className="receipt-slip"

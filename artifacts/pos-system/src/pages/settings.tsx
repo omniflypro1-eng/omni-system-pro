@@ -65,6 +65,7 @@ export default function Settings() {
     showDiscount: true,
     showNotes: true,
     useCompactReceiptFormat: true,
+    useAlternativeReceiptStyle: false,
     autoPrintTrigger: "print_button",
     maxReprintCount: 3,
     masterCopiesCount: 1,
@@ -631,6 +632,7 @@ export default function Settings() {
                     ["showDiscount", "إظهار قيمة الخصم الممنوح"],
                     ["showNotes", "إظهار شروط وملاحظات الفاتورة والضمان"],
                     ["useCompactReceiptFormat", "تفعيل تنسيق الفاتورة المختصر / الموفر للورق (مطابق للصورة المرفقة لفاتورة الطلبات والأقسام)"],
+                    ["useAlternativeReceiptStyle", "تفعيل الطراز والتصميم البديل للفاتورة (تصميم قصير موفر للورق مطابق للصورة المرفقة)"],
                   ] as [keyof SettingsInput, string][]).map(([field, label]) => (
                     <div key={field} className="flex items-center justify-between py-2 border-b border-border/50">
                       <label className="text-sm">{label}</label>
