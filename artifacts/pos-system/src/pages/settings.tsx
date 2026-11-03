@@ -68,6 +68,9 @@ export default function Settings() {
     useAlternativeReceiptStyle: false,
     altHideLogo: true,
     altShowBigDailyNumber: true,
+    altDailyOrderNumberSize: "3xl",
+    altCompactSpacing: true,
+    altApplyToDepartment: true,
     autoPrintTrigger: "print_button",
     maxReprintCount: 3,
     masterCopiesCount: 1,
@@ -655,7 +658,7 @@ export default function Settings() {
                   إعدادات طراز وفاتورة الكاشير البديلة والمختصرة (الموفرة للورق - مطابقة للصورة المرفقة)
                 </CardTitle>
                 <CardDescription>
-                  قسم مخصص لضبط وتخصيص شكل فواتير الطلبات والكاشير البديل بحيث تكون قصيرة وموفرة للورق ولا تعرض الشعار أو التفاصيل الزائدة
+                  قسم مخصص لضبط وتخصيص شكل فواتير الطلبات والكاشير البديل بدقة فائقة من حيث الحجم، الطراز، إخفاء الشعار، وتوفير الورق
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -664,6 +667,8 @@ export default function Settings() {
                     ["useAlternativeReceiptStyle", "تفعيل الطراز والتصميم البديل لفاتورة الطلبات والكاشير (قصير وموفر للورق)"],
                     ["altHideLogo", "إخفاء شعار المؤسسة تماماً في الطراز البديل (حسب التصميم المرفق)"],
                     ["altShowBigDailyNumber", "إبراز رقم الطلب اليومي بخط كبير وبارز في منتصف الترويسة"],
+                    ["altCompactSpacing", "ضغط المسافات والهوامش العمودية لأقصى حد (لتوفير الورق وعدم الإطالة)"],
+                    ["altApplyToDepartment", "تطبيق الطراز الموحد المختصر على فواتير الأقسام والمطبخ أيضاً"],
                   ].map(([field, label]) => (
                     <div key={field} className="flex items-center justify-between py-2 border-b border-border/50">
                       <label className="text-sm font-bold text-slate-800">{label}</label>
@@ -673,6 +678,24 @@ export default function Settings() {
                       />
                     </div>
                   ))}
+                </div>
+
+                <div className="space-y-1.5 pt-3 border-t border-blue-200">
+                  <label className="text-sm font-bold text-slate-800">حجم خط رقم الطلب اليومي البارز (Daily Order Number Size)</label>
+                  <Select
+                    value={form.altDailyOrderNumberSize as string ?? "3xl"}
+                    onValueChange={v => setField("altDailyOrderNumberSize", v)}
+                  >
+                    <SelectTrigger className="w-56 bg-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="xl">كبير (XL)</SelectItem>
+                      <SelectItem value="2xl">كبير جداً (2xl)</SelectItem>
+                      <SelectItem value="3xl">ضخم ومميز (3xl - الافتراضي)</SelectItem>
+                      <SelectItem value="4xl">فائق الضخامة (4xl)</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </CardContent>
             </Card>
