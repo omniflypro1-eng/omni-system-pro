@@ -66,6 +66,8 @@ export default function Settings() {
     showNotes: true,
     useCompactReceiptFormat: true,
     useAlternativeReceiptStyle: false,
+    altHideLogo: true,
+    altShowBigDailyNumber: true,
     autoPrintTrigger: "print_button",
     maxReprintCount: 3,
     masterCopiesCount: 1,
@@ -636,6 +638,35 @@ export default function Settings() {
                   ] as [keyof SettingsInput, string][]).map(([field, label]) => (
                     <div key={field} className="flex items-center justify-between py-2 border-b border-border/50">
                       <label className="text-sm">{label}</label>
+                      <Switch
+                        checked={Boolean(form[field])}
+                        onCheckedChange={v => setField(field, v)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-blue-500/50 bg-blue-500/5">
+              <CardHeader>
+                <CardTitle className="text-blue-700 dark:text-blue-400 flex items-center gap-2">
+                  <Printer className="w-5 h-5" />
+                  إعدادات طراز وفاتورة الكاشير البديلة والمختصرة (الموفرة للورق - مطابقة للصورة المرفقة)
+                </CardTitle>
+                <CardDescription>
+                  قسم مخصص لضبط وتخصيص شكل فواتير الطلبات والكاشير البديل بحيث تكون قصيرة وموفرة للورق ولا تعرض الشعار أو التفاصيل الزائدة
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+                  {[
+                    ["useAlternativeReceiptStyle", "تفعيل الطراز والتصميم البديل لفاتورة الطلبات والكاشير (قصير وموفر للورق)"],
+                    ["altHideLogo", "إخفاء شعار المؤسسة تماماً في الطراز البديل (حسب التصميم المرفق)"],
+                    ["altShowBigDailyNumber", "إبراز رقم الطلب اليومي بخط كبير وبارز في منتصف الترويسة"],
+                  ].map(([field, label]) => (
+                    <div key={field} className="flex items-center justify-between py-2 border-b border-border/50">
+                      <label className="text-sm font-bold text-slate-800">{label}</label>
                       <Switch
                         checked={Boolean(form[field])}
                         onCheckedChange={v => setField(field, v)}
