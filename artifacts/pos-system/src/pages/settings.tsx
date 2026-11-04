@@ -907,6 +907,7 @@ function InvoiceLivePreviewCard({
   };
 
   const isAlt = Boolean(form.useAlternativeReceiptStyle);
+  const currentStyle = Number(form.receiptStyle ?? (form.useAlternativeReceiptStyle ? 2 : 1));
 
   const handleQuickTestPrint = () => {
     const printable = document.getElementById("settings-live-receipt-container");
@@ -946,8 +947,8 @@ function InvoiceLivePreviewCard({
             <div>
               <CardTitle className="text-base font-black text-slate-900 dark:text-white flex items-center flex-wrap gap-2">
                 <span>معاينة حية ومباشرة لشكل الفاتورة قبل الحفظ</span>
-                <Badge variant={isAlt ? "default" : "secondary"} className={isAlt ? "bg-blue-600 text-white font-bold" : "font-bold"}>
-                  {isAlt ? "الطراز البديل الموفر للورق (مطابق للصورة)" : "الطراز القياسي الكامل"}
+                <Badge variant={currentStyle === 1 ? "secondary" : "default"} className={currentStyle === 2 ? "bg-blue-600 text-white font-bold" : currentStyle === 3 ? "bg-emerald-600 text-white font-bold" : "font-bold"}>
+                  {currentStyle === 3 ? "الشكل 3: التذكرة المربعة (طلب سريع)" : currentStyle === 2 ? "الشكل 2: البديل الموفر للورق" : "الشكل 1: القياسي الكامل"}
                 </Badge>
               </CardTitle>
               <CardDescription className="text-xs">
@@ -1027,8 +1028,8 @@ function InvoiceLivePreviewCard({
         <div className="w-full max-w-lg mb-4 p-2 bg-white dark:bg-slate-900 border rounded-xl flex items-center justify-between gap-2 shadow-xs">
           <div className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
             <span>النمط المعتمد للطباعة:</span>
-            <span className={isAlt ? "text-blue-600 font-black" : "text-slate-900 dark:text-white font-black"}>
-              {isAlt ? "الطراز البديل الموفر للورق" : "الطراز القياسي الكامل"}
+            <span className={currentStyle === 2 ? "text-blue-600 font-black" : currentStyle === 3 ? "text-emerald-600 font-black" : "text-slate-900 dark:text-white font-black"}>
+              {currentStyle === 3 ? "الشكل 3: التذكرة المربعة (طلب سريع)" : currentStyle === 2 ? "الشكل 2: البديل الموفر للورق" : "الشكل 1: القياسي الكامل"}
             </span>
           </div>
           <div className="flex items-center gap-1 flex-wrap">
