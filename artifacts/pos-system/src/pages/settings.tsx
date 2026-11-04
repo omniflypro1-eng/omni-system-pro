@@ -591,18 +591,30 @@ export default function Settings() {
               <CardHeader>
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <CardTitle>شكل الفاتورة والسندات التجارية والمحاسبية</CardTitle>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="text-xs font-bold gap-1 text-indigo-600 border-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950"
-                    onClick={() => {
-                      document.getElementById("live-invoice-preview-section")?.scrollIntoView({ behavior: "smooth" });
-                    }}
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    معاينة شكل الفاتورة الحية ⬇️
-                  </Button>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Link href="/receipt-formats">
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="text-xs font-bold gap-1 bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
+                      >
+                        <Receipt className="w-3.5 h-3.5" />
+                        <span>إدارة وحالة الأشكال الثلاث ↗</span>
+                      </Button>
+                    </Link>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="text-xs font-bold gap-1 text-indigo-600 border-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950 cursor-pointer"
+                      onClick={() => {
+                        document.getElementById("live-invoice-preview-section")?.scrollIntoView({ behavior: "smooth" });
+                      }}
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      معاينة شكل الفاتورة الحية ⬇️
+                    </Button>
+                  </div>
                 </div>
                 <CardDescription>تحكم في البيانات والعناصر المطبوعة على فواتير المبيعات والمخازن وسندات القبض/الصرف</CardDescription>
               </CardHeader>

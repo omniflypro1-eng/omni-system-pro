@@ -404,6 +404,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         { name: "سجل التدقيق والرقابة والأمان", href: "/audit", icon: ShieldAlert },
         { name: "العملات وأسعار الصرف المتعددة", href: "/currencies", icon: Coins },
         { name: "تصميم الترويسة والوثائق والسندات", href: "/document-print-settings", icon: Palette },
+        { name: "حالة وأشكال الفواتير الثلاث", href: "/receipt-formats", icon: Receipt, highlight: true },
         { name: "إدارة الفروع والمواقع والمستودعات", href: "/branches", icon: Building2 },
         { name: "النسخ الاحتياطي واستعادة البيانات", href: "/backup-restore", icon: Database },
         ...(isDeveloper ? [{ name: "تراخيص التشغيل والتفعيل", href: "/licenses", icon: KeyRound }] : []),

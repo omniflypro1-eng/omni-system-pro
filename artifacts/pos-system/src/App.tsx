@@ -19,6 +19,7 @@ import HR from "@/pages/hr";
 import Returns from "@/pages/returns";
 import Accounting from "@/pages/accounting";
 import DocumentPrintSettingsPage from "@/pages/document-print-settings";
+import ReceiptFormatsStatusPage from "@/pages/receipt-formats-status";
 import OnyxErp from "@/pages/onyx-erp";
 import Licenses from "@/pages/licenses";
 import Suppliers from "@/pages/suppliers";
@@ -459,6 +460,9 @@ function Router() {
       </Route>
       <Route path="/document-print-settings">
         <ProtectedRoute requireAdmin><DocumentPrintSettingsPage /></ProtectedRoute>
+      </Route>
+      <Route path="/receipt-formats">
+        <ProtectedRoute requireAdmin><ReceiptFormatsStatusPage /></ProtectedRoute>
       </Route>
       <Route path="/returns">
         <ProtectedRoute requireAdmin><Returns /></ProtectedRoute>
