@@ -625,7 +625,20 @@ export function DeptReceiptSlip({
               </tr>
             ))}
           </tbody>
+          <tfoot>
+            <tr className="border-t border-black font-black">
+              <td className="text-right p-0.5 font-black text-xs">الإجمالي:</td>
+              <td className="text-center p-0.5 font-black text-xs">
+                <Num>{items.reduce((s, i) => s + (i.unitPrice ?? 0) * i.quantity, 0).toLocaleString("en-US")}</Num>
+              </td>
+            </tr>
+          </tfoot>
         </table>
+        {order.note && settings?.showNotes !== false && (
+          <div className="text-right text-[10px] font-bold text-black border-t border-black pt-0.5 mt-0.5">
+            <span className="text-gray-600">ملاحظات: </span>{order.note}
+          </div>
+        )}
       </div>
     );
   }
