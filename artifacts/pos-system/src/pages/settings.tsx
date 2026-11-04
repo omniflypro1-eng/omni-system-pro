@@ -89,6 +89,7 @@ export default function Settings() {
     applyCutoffToPurchases: true,
     applyCutoffToHR: true,
   });
+  const currentStyle = Number(form.receiptStyle ?? (form.useAlternativeReceiptStyle ? 2 : 1));
   const logoInputRef = useRef<HTMLInputElement>(null);
   const [setupLicenseCode, setSetupLicenseCode] = useState("");
   const [activatingSetupLicense, setActivatingSetupLicense] = useState(false);
