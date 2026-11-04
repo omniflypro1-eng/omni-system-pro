@@ -221,60 +221,60 @@ export function MasterReceiptSlip({
     return (
       <div className="receipt-slip receipt-slip-shape3" dir="rtl" style={commonSlipStyle}>
         {/* 1) اسم النشاط بالمنتصف */}
-        <div className="text-center pt-0 pb-0.5">
-          <div className="receipt-business-name font-black text-lg text-black leading-tight">
+        <div className="text-center pt-0 pb-0">
+          <div className="receipt-business-name font-black text-base text-black leading-tight">
             {businessName}
           </div>
         </div>
 
         {/* 2) عنوان الفاتورة تحته خط متصل */}
-        <div className="text-center font-bold text-sm text-black underline decoration-1 underline-offset-2 my-0.5 leading-none">
+        <div className="text-center font-bold text-xs text-black underline decoration-1 underline-offset-2 my-0.5 leading-none">
           {copyLabel || "فاتورة خاصة بالزبون"}
         </div>
 
         {/* 3) رقم الهاتف */}
-        <div className="text-center text-[11px] font-bold text-black dir-ltr my-0.5 leading-none">
+        <div className="text-center text-[10px] font-bold text-black dir-ltr my-0.5 leading-none">
           <Num>{effPhone || "780780116 - 775695953"}</Num>
         </div>
 
         {/* 4) شريط البيانات الثلاثي (التاريخ | رقم الطلب اليومي البارز | رقم الطاولة والوقت) */}
-        <div className="flex justify-between items-center text-xs py-1 px-0.5 font-bold my-1 border-t border-b border-black">
+        <div className="flex justify-between items-center text-xs py-0.5 px-0.5 font-bold my-0.5 border-t border-b border-black">
           {/* اليسار: التاريخ */}
           <div className="flex flex-col items-start text-left min-w-0">
-            <span className="font-mono font-bold text-[11px] text-black dir-ltr leading-tight">
+            <span className="font-mono font-bold text-[10px] text-black dir-ltr leading-tight">
               <Num>{date}</Num>
             </span>
           </div>
 
           {/* الوسط: رقم الطلب اليومي بخط كبير عريض تحته (محلي/نقد) */}
           <div className="flex flex-col items-center justify-center px-1">
-            <span className="text-3xl font-black text-black leading-none tracking-tighter" style={{ fontVariantNumeric: "tabular-nums" }}>
+            <span className="text-2xl font-black text-black leading-none tracking-tighter" style={{ fontVariantNumeric: "tabular-nums" }}>
               <Num>{dailyOrderNumber}</Num>
             </span>
-            <span className="text-xs font-black text-black mt-0.5 leading-none">
+            <span className="text-[10px] font-black text-black mt-0.5 leading-none">
               {orderTypeLabel}/{paymentLabel}
             </span>
           </div>
 
           {/* اليمين: رقم الطاولة والوقت */}
           <div className="flex flex-col items-end text-right min-w-0">
-            <span className="text-[10px] text-gray-700 leading-none mb-0.5">
+            <span className="text-[9px] text-gray-700 leading-none mb-0.5">
               رقم الطاولة {order.tableNumber ? <Num>{order.tableNumber}</Num> : ""}
             </span>
-            <span className="font-mono font-bold text-[11px] text-black dir-ltr leading-tight">
+            <span className="font-mono font-bold text-[10px] text-black dir-ltr leading-tight">
               <Num>{time}</Num>
             </span>
           </div>
         </div>
 
         {/* 5) جدول الأصناف المطابق تماماً كالصورة: الصنف | الكمية | ت.م | الإجمالي */}
-        <table className="receipt-table w-full border-collapse text-xs my-1">
+        <table className="receipt-table w-full border-collapse text-[11px] my-0.5">
           <thead>
             <tr className="border-b border-black text-gray-800">
-              <th className="text-right p-1 font-black w-2/5">الصنف</th>
-              <th className="text-center p-1 font-black w-1/5">الكمية</th>
-              <th className="text-center p-1 font-black w-1/5">ت.م</th>
-              <th className="text-left p-1 font-black w-1/5">الإجمالي</th>
+              <th className="text-right p-0.5 font-black w-2/5">الصنف</th>
+              <th className="text-center p-0.5 font-black w-1/5">الكمية</th>
+              <th className="text-center p-0.5 font-black w-1/5">ت.م</th>
+              <th className="text-left p-0.5 font-black w-1/5">الإجمالي</th>
             </tr>
           </thead>
           <tbody>
@@ -283,16 +283,16 @@ export function MasterReceiptSlip({
               const lTotal = uPrice * item.quantity;
               return (
                 <tr key={idx} className="border-b border-gray-300">
-                  <td className="text-right p-1 font-bold text-black" style={{ whiteSpace: "normal", wordBreak: "break-word" }}>
+                  <td className="text-right p-0.5 font-bold text-black" style={{ whiteSpace: "normal", wordBreak: "break-word" }}>
                     {item.productName}
                   </td>
-                  <td className="text-center p-1 font-black text-black">
+                  <td className="text-center p-0.5 font-black text-black">
                     <Num>{item.quantity}</Num>
                   </td>
-                  <td className="text-center p-1 font-bold text-black">
+                  <td className="text-center p-0.5 font-bold text-black">
                     <Num>{uPrice.toLocaleString("en-US")}</Num>
                   </td>
-                  <td className="text-left p-1 font-black text-black">
+                  <td className="text-left p-0.5 font-black text-black">
                     <Num>{lTotal.toLocaleString("en-US")}</Num>
                   </td>
                 </tr>
@@ -301,10 +301,10 @@ export function MasterReceiptSlip({
           </tbody>
           <tfoot>
             <tr className="border-t-2 border-black font-black">
-              <td colSpan={3} className="text-right p-1 font-black text-xs">
+              <td colSpan={3} className="text-right p-0.5 font-black text-xs">
                 إجمالي الفاتورة:
               </td>
-              <td className="text-left p-1 font-black text-xs whitespace-nowrap">
+              <td className="text-left p-0.5 font-black text-xs whitespace-nowrap">
                 <Num>{(order.total ?? 0).toLocaleString("en-US")}</Num>
               </td>
             </tr>
@@ -312,10 +312,10 @@ export function MasterReceiptSlip({
         </table>
 
         {/* 6) تذييل الملاحظات ورسالة الإيصال */}
-        <div className="text-center text-[10px] font-bold text-black my-1 leading-tight">
+        <div className="text-center text-[9px] font-bold text-black my-0.5 leading-tight">
           {footerMsg || "عزيزي العميل اطلب رقم الإيصال عند الشراء"}
         </div>
-        <div className="text-center text-[9px] font-bold text-gray-600 mt-0.5">
+        <div className="text-center text-[8px] font-bold text-gray-600 mt-0.5">
           شكراً لزيارتكم
         </div>
       </div>
