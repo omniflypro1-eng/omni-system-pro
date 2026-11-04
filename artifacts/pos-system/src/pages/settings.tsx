@@ -24,7 +24,7 @@ import {
   Save, Plus, Trash2, Pencil, Printer, Copy, Building2, Settings2, Upload, X, ShieldCheck,
   Sparkles, Image as ImageIcon, Clock, Moon, Sun, CheckCircle2, AlertCircle, Plane,
   DollarSign, ShoppingCart, Users, Briefcase, FileSpreadsheet, ShieldAlert, Check, RefreshCw,
-  HelpCircle, ArrowRight, CalendarCheck, KeyRound, Fingerprint, Eye
+  HelpCircle, ArrowRight, CalendarCheck, KeyRound, Fingerprint, Eye, Receipt
 } from "lucide-react";
 import { fetchWithAuth } from "@workspace/api-client-react";
 import { MasterReceiptSlip, DeptReceiptSlip } from "@/components/receipt";
