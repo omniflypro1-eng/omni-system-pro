@@ -211,10 +211,70 @@ export function MasterReceiptSlip({
     marginRight: printerRight < 0 ? `${printerRight}mm` : "auto",
   };
 
+  const receiptStyle = Number((settings as any)?.receiptStyle ?? ((settings as any)?.useAlternativeReceiptStyle ? 2 : 1));
+
+  // ══════════════════════════════════════════════════════════════════
+  // الشكل الثالث: التصميم المربع / تذكرة الطلب السريع (Compact Square Ticket)
+  // ══════════════════════════════════════════════════════════════════
+  if (receiptStyle === 3) {
+    return (
+      <div className="receipt-slip receipt-slip-square border border-black p-2 bg-white" dir="rtl" style={commonSlipStyle}>
+        <div className="text-center pb-1 border-b border-black">
+          <div className="font-black text-lg tracking-tight mb-0.5">{businessName}</div>
+          <div className="inline-block bg-black text-white font-black text-[11px] px-2 py-0.5 rounded">
+            {copyLabel || "تذكرة طلب سريع"}
+          </div>
+        </div>
+
+        {/* Big Order Number Box */}
+        <div className="my-1.5 p-1.5 border-2 border-black text-center bg-gray-50 rounded">
+          <div className="text-[10px] font-bold text-gray-700">رقم الطلب اليومي</div>
+          <div className="text-3xl font-black tracking-tighter my-0.5 text-black">
+            <Num>{dailyOrderNumber}</Num>
+          </div>
+          <div className="text-[10px] font-bold text-black flex justify-center gap-2">
+            <span>النوع: {orderTypeLabel}</span>
+            {order.tableNumber && <span>طاولة: <Num>{order.tableNumber}</Num></span>}
+          </div>
+        </div>
+
+        {/* Meta Info */}
+        <div className="flex justify-between items-center text-[10px] font-bold border-b border-black pb-1 mb-1">
+          <span><Num>{date} {time}</Num></span>
+          <span>الكاشير: {cashierName || order.cashierName || "مدير النظام"}</span>
+        </div>
+
+        {/* Items */}
+        <div className="space-y-1 my-1 text-xs">
+          {order.items?.map((item, idx) => (
+            <div key={idx} className="flex justify-between items-center border-b border-dotted border-gray-400 pb-0.5">
+              <span className="font-bold text-black truncate max-w-[150px]">{item.productName}</span>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="bg-gray-200 px-1.5 py-0.5 font-black text-[11px] rounded"><Num>{item.quantity}</Num></span>
+                <span className="font-mono font-bold"><Num>{((item.unitPrice ?? item.price ?? 0) * item.quantity).toLocaleString("en-US")}</Num></span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Total */}
+        <div className="flex justify-between items-center font-black text-xs bg-gray-100 p-1 border border-black mt-1.5">
+          <span>الإجمالي النهائي:</span>
+          <span><Num>{(order.total ?? 0).toLocaleString("en-US")}</Num> {currency}</span>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center text-[9px] font-bold text-gray-700 mt-1">
+          {footerMsg || "شكراً لزيارتكم .. نتمنى لكم سعادة دائمـة"}
+        </div>
+      </div>
+    );
+  }
+
   // ══════════════════════════════════════════════════════════════════
   // الشكل الأول: التصميم القياسي الكامل للفاتورة
   // ══════════════════════════════════════════════════════════════════
-  if (!isAlternative) {
+  if (receiptStyle === 1) {
     return (
       <div className="receipt-slip" dir="rtl" style={commonSlipStyle}>
         <div className="receipt-header text-center pb-1">

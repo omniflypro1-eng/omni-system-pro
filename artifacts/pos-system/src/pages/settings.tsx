@@ -67,6 +67,7 @@ export default function Settings() {
     showNotes: true,
     useCompactReceiptFormat: true,
     useAlternativeReceiptStyle: false,
+    receiptStyle: 1,
     altHideLogo: true,
     altShowBigDailyNumber: true,
     altDailyOrderNumberSize: "3xl",
@@ -1030,76 +1031,115 @@ function InvoiceLivePreviewCard({
               {isAlt ? "الطراز البديل الموفر للورق" : "الطراز القياسي الكامل"}
             </span>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-wrap">
             <Button
               type="button"
               size="sm"
-              variant={!isAlt ? "default" : "outline"}
+              variant={currentStyle === 1 ? "default" : "outline"}
               className="text-[11px] font-bold h-7 px-2"
-              onClick={() => setField("useAlternativeReceiptStyle", false)}
+              onClick={() => { setField("receiptStyle", 1); setField("useAlternativeReceiptStyle", false); }}
             >
               الشكل 1: القياسي
             </Button>
             <Button
               type="button"
               size="sm"
-              variant={isAlt ? "default" : "outline"}
+              variant={currentStyle === 2 ? "default" : "outline"}
               className="text-[11px] font-bold h-7 px-2 bg-blue-600 hover:bg-blue-700 text-white"
-              onClick={() => setField("useAlternativeReceiptStyle", true)}
+              onClick={() => { setField("receiptStyle", 2); setField("useAlternativeReceiptStyle", true); }}
             >
               الشكل 2: البديل الموفر
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={currentStyle === 3 ? "default" : "outline"}
+              className="text-[11px] font-bold h-7 px-2 bg-emerald-600 hover:bg-emerald-700 text-white"
+              onClick={() => { setField("receiptStyle", 3); setField("useAlternativeReceiptStyle", false); }}
+            >
+              الشكل 3: المربع (طلب سريع)
             </Button>
           </div>
         </div>
 
         {/* Content Container */}
         {activePreviewTab === "compare" ? (
-          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl">
+          <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl">
             {/* Style 1: Standard */}
-            <div className="bg-white dark:bg-slate-900 border rounded-xl p-3 shadow-md">
-              <div className="text-xs font-black text-center mb-2 pb-1 border-b text-slate-700 dark:text-slate-300">
-                الشكل الأول: الطراز القياسي الكامل
-              </div>
-              <div className="p-2 border border-slate-200 rounded-lg bg-white overflow-hidden">
-                <MasterReceiptSlip
-                  order={sampleOrder}
-                  settings={{ ...form, useAlternativeReceiptStyle: false }}
-                  cashierName="مدير النظام"
-                  copyLabel="نسخة العميل"
-                />
+            <div className="bg-white dark:bg-slate-900 border rounded-xl p-3 shadow-md flex flex-col justify-between">
+              <div>
+                <div className="text-xs font-black text-center mb-2 pb-1 border-b text-slate-700 dark:text-slate-300">
+                  الشكل الأول: الطراز القياسي الكامل
+                </div>
+                <div className="p-2 border border-slate-200 rounded-lg bg-white overflow-hidden">
+                  <MasterReceiptSlip
+                    order={sampleOrder}
+                    settings={{ ...form, receiptStyle: 1, useAlternativeReceiptStyle: false }}
+                    cashierName="مدير النظام"
+                    copyLabel="نسخة العميل"
+                  />
+                </div>
               </div>
               <Button
                 type="button"
-                variant={!isAlt ? "secondary" : "outline"}
+                variant={currentStyle === 1 ? "secondary" : "outline"}
                 size="sm"
                 className="w-full mt-3 text-xs font-bold"
-                onClick={() => setField("useAlternativeReceiptStyle", false)}
+                onClick={() => { setField("receiptStyle", 1); setField("useAlternativeReceiptStyle", false); }}
               >
-                {!isAlt ? "✅ مفعّل حالياً" : "اعتماد هذا الشكل"}
+                {currentStyle === 1 ? "✅ مفعّل حالياً" : "اعتماد هذا الشكل"}
               </Button>
             </div>
 
             {/* Style 2: Alternative */}
-            <div className="bg-white dark:bg-slate-900 border-2 border-blue-500 rounded-xl p-3 shadow-md">
-              <div className="text-xs font-black text-center mb-2 pb-1 border-b text-blue-700 dark:text-blue-400">
-                الشكل الثاني: الطراز البديل القصير (الموفر للورق)
-              </div>
-              <div className="p-2 border border-slate-200 rounded-lg bg-white overflow-hidden">
-                <MasterReceiptSlip
-                  order={sampleOrder}
-                  settings={{ ...form, useAlternativeReceiptStyle: true }}
-                  cashierName="مدير النظام"
-                  copyLabel="خاصة بالزبون"
-                />
+            <div className="bg-white dark:bg-slate-900 border rounded-xl p-3 shadow-md flex flex-col justify-between">
+              <div>
+                <div className="text-xs font-black text-center mb-2 pb-1 border-b text-blue-700 dark:text-blue-400">
+                  الشكل الثاني: البديل القصير (الموفر)
+                </div>
+                <div className="p-2 border border-slate-200 rounded-lg bg-white overflow-hidden">
+                  <MasterReceiptSlip
+                    order={sampleOrder}
+                    settings={{ ...form, receiptStyle: 2, useAlternativeReceiptStyle: true }}
+                    cashierName="مدير النظام"
+                    copyLabel="خاصة بالزبون"
+                  />
+                </div>
               </div>
               <Button
                 type="button"
-                variant={isAlt ? "default" : "outline"}
+                variant={currentStyle === 2 ? "default" : "outline"}
                 size="sm"
                 className="w-full mt-3 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white"
-                onClick={() => setField("useAlternativeReceiptStyle", true)}
+                onClick={() => { setField("receiptStyle", 2); setField("useAlternativeReceiptStyle", true); }}
               >
-                {isAlt ? "✅ مفعّل حالياً (مطابق للصورة)" : "اعتماد هذا الشكل الموفر"}
+                {currentStyle === 2 ? "✅ مفعّل حالياً" : "اعتماد هذا الشكل"}
+              </Button>
+            </div>
+
+            {/* Style 3: Square Ticket */}
+            <div className="bg-white dark:bg-slate-900 border-2 border-emerald-500 rounded-xl p-3 shadow-md flex flex-col justify-between">
+              <div>
+                <div className="text-xs font-black text-center mb-2 pb-1 border-b text-emerald-700 dark:text-emerald-400">
+                  الشكل الثالث: التذكرة المربعة (طلب سريع)
+                </div>
+                <div className="p-2 border border-slate-200 rounded-lg bg-white overflow-hidden">
+                  <MasterReceiptSlip
+                    order={sampleOrder}
+                    settings={{ ...form, receiptStyle: 3, useAlternativeReceiptStyle: false }}
+                    cashierName="مدير النظام"
+                    copyLabel="تذكرة طلب سريع"
+                  />
+                </div>
+              </div>
+              <Button
+                type="button"
+                variant={currentStyle === 3 ? "default" : "outline"}
+                size="sm"
+                className="w-full mt-3 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
+                onClick={() => { setField("receiptStyle", 3); setField("useAlternativeReceiptStyle", false); }}
+              >
+                {currentStyle === 3 ? "✅ مفعّل حالياً (مربع سريع)" : "اعتماد الشكل المربع"}
               </Button>
             </div>
           </div>
