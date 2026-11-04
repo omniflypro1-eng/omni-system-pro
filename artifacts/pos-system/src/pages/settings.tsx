@@ -908,37 +908,30 @@ function InvoiceLivePreviewCard({
   const isAlt = Boolean(form.useAlternativeReceiptStyle);
 
   const handleQuickTestPrint = () => {
-    const printAreaId = "__settings-invoice-preview-print__";
-    document.getElementById(printAreaId)?.remove();
     const printable = document.getElementById("settings-live-receipt-container");
     if (!printable) return;
+
+    const printAreaId = "__settings-invoice-preview-print__";
+    document.getElementById(printAreaId)?.remove();
 
     const el = document.createElement("div");
     el.id = printAreaId;
     el.setAttribute("dir", "rtl");
+    el.style.position = "absolute";
+    el.style.left = "-9999px";
+    el.style.top = "0";
     el.innerHTML = printable.innerHTML;
     document.body.appendChild(el);
 
-    const style = document.createElement("style");
-    style.id = "__settings-preview-style__";
-    style.textContent = `
-      @page { size: ${form.paperWidth ?? 80}mm auto; margin: 0; }
-      @media print {
-        body * { visibility: hidden !important; }
-        #${printAreaId}, #${printAreaId} * { visibility: visible !important; }
-        #${printAreaId} { position: static !important; display: block !important; width: 100% !important; margin: 0 auto !important; }
-      }
-    `;
-    document.head.appendChild(style);
-
     const cleanup = () => {
       document.getElementById(printAreaId)?.remove();
-      document.getElementById("__settings-preview-style__")?.remove();
       window.removeEventListener("afterprint", cleanup);
     };
     window.addEventListener("afterprint", cleanup, { once: true });
-    setTimeout(cleanup, 2000);
-    window.print();
+    setTimeout(cleanup, 3000);
+    setTimeout(() => {
+      window.print();
+    }, 150);
   };
 
   return (

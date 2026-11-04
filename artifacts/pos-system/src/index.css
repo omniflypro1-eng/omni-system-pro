@@ -222,6 +222,8 @@
 
   /* إظهار منطقة طباعة الفواتير والتقارير الحرارية (رول حراري 80mm - عرض رأس الطباعة 72mm) */
   #__pos-standalone-print-root__,
+  #__settings-invoice-preview-print__,
+  #settings-live-receipt-container,
   .hidden-print-container,
   #receipt-print-area {
     display: block !important;
