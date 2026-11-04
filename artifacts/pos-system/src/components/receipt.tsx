@@ -582,6 +582,22 @@ export function DeptReceiptSlip({
   const cleanInvoiceNumber = formatOrderInvoiceNumber(order.invoiceNumber, order.id);
   const dailyOrderNumber = rawDaily !== undefined && rawDaily !== null ? String(rawDaily) : cleanInvoiceNumber;
 
+  const commonSlipStyle: React.CSSProperties = {
+    boxSizing: "border-box",
+    width: "100%",
+    maxWidth: `${printableWidth}mm`,
+    fontSize: `${fontSize}px`,
+    lineHeight: 1 + lineSpacing / 10,
+    paddingTop: `${printerTop > 0 ? printerTop : 0}mm`,
+    paddingBottom: `${printerBottom > 0 ? printerBottom : 0}mm`,
+    paddingLeft: `${printerLeft > 0 ? printerLeft : 0}mm`,
+    paddingRight: `${printerRight > 0 ? printerRight : 0}mm`,
+    marginTop: printerTop < 0 ? `${printerTop}mm` : "0mm",
+    marginBottom: printerBottom < 0 ? `${printerBottom}mm` : "0mm",
+    marginLeft: printerLeft < 0 ? `${printerLeft}mm` : "auto",
+    marginRight: printerRight < 0 ? `${printerRight}mm` : "auto",
+  };
+
   const isShape3 = Number((settings as any)?.receiptStyle) === 3;
   
   if (isShape3) {
