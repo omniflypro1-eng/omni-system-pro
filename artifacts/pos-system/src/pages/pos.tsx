@@ -1494,6 +1494,7 @@ export default function Pos() {
           padding: 0 !important;
           box-sizing: border-box !important;
           background: #ffffff !important;
+          max-height: 300mm !important;
         }
         #${standaloneRootId} .print-page, .print-page {
           display: block !important;
