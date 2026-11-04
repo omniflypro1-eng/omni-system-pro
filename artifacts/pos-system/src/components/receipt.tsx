@@ -630,8 +630,8 @@ export function ReceiptPreview({
     : copyLabels;
 
   return (
-    <div dir="rtl" className="space-y-6 p-4 bg-slate-100 rounded-xl border border-slate-200">
-      <div className="text-xs font-extrabold text-slate-500 tracking-wider mb-2 text-center uppercase">
+    <div dir="rtl" className="space-y-3 p-3 bg-slate-100 rounded-xl border border-slate-200">
+      <div className="text-xs font-extrabold text-slate-500 tracking-wider mb-1 text-center uppercase">
         👀 معاينة شكل ومحتوى الفواتير قبل الطباعة
       </div>
       

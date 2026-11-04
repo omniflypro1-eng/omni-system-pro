@@ -267,28 +267,24 @@
   .print-page {
     display: block !important;
     position: relative !important;
-    page-break-before: always !important;
-    page-break-after: always !important;
-    break-before: page !important;
-    break-after: page !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+    page-break-before: auto !important;
+    break-before: auto !important;
+    page-break-after: auto !important;
+    break-after: auto !important;
     width: 100% !important;
     max-width: 72mm !important;
     margin: 0 auto !important;
-    padding: 0;
+    padding: 0 !important;
     background: white !important;
     box-sizing: border-box !important;
   }
 
-  .print-page:first-child {
-    page-break-before: avoid !important;
-    break-before: avoid !important;
-  }
-
-  .print-page:last-child {
-    page-break-after: auto !important;
-    break-after: auto !important;
+  .print-page + .print-page {
+    margin-top: 2mm !important;
+    padding-top: 2mm !important;
+    border-top: 1px dashed #000000 !important;
   }
 
   .receipt-slip, .receipt-dept-slip, .dept-receipt-slip {

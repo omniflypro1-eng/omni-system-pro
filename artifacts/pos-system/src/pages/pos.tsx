@@ -1499,22 +1499,19 @@ export default function Pos() {
           width: 100% !important;
           max-width: ${printableW}mm !important;
           margin: 0 auto !important;
-          padding: 0 0 3mm 0 !important;
+          padding: 0 !important;
           box-sizing: border-box !important;
-          page-break-before: always !important;
-          break-before: page !important;
-          page-break-after: always !important;
-          break-after: page !important;
           page-break-inside: avoid !important;
           break-inside: avoid !important;
-        }
-        #${standaloneRootId} .print-page:first-child, .print-page:first-child {
-          page-break-before: avoid !important;
-          break-before: avoid !important;
-        }
-        #${standaloneRootId} .print-page:last-child, .print-page:last-child {
+          page-break-before: auto !important;
+          break-before: auto !important;
           page-break-after: auto !important;
           break-after: auto !important;
+        }
+        #${standaloneRootId} .print-page + .print-page, .print-page + .print-page {
+          margin-top: 2mm !important;
+          padding-top: 2mm !important;
+          border-top: 1px dashed #000000 !important;
         }
         .receipt-slip, .receipt-slip-alt, .receipt-dept-slip, .dept-receipt-slip {
           display: block !important;
