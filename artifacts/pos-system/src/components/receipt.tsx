@@ -218,8 +218,15 @@ export function MasterReceiptSlip({
   // ══════════════════════════════════════════════════════════════════
   if (receiptStyle === 3) {
     const paymentLabel = order.paymentMethod === "card" ? "شبكة" : "نقد";
+    const compactSlipStyle = {
+      ...commonSlipStyle,
+      paddingTop: "0mm",
+      paddingBottom: "0mm",
+      marginTop: "0mm",
+      marginBottom: "0mm",
+    };
     return (
-      <div className="receipt-slip receipt-slip-shape3" dir="rtl" style={commonSlipStyle}>
+      <div className="receipt-slip receipt-slip-shape3" dir="rtl" style={compactSlipStyle}>
         {/* 1) اسم النشاط بالمنتصف */}
         <div className="text-center pt-0 pb-0">
           <div className="receipt-business-name font-black text-base text-black leading-tight">
