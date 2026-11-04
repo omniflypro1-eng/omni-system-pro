@@ -308,13 +308,13 @@
     width: 100% !important;
     max-width: 72mm !important;
     margin: 0 auto !important;
-    padding: 0.5mm !important;
-    line-height: 1.15 !important;
+    padding: 0mm !important;
+    line-height: 1 !important;
   }
   .receipt-slip-shape3 table th,
   .receipt-slip-shape3 table td {
-    padding: 1px 2px !important;
-    font-size: 11px !important;
+    padding: 0px 1px !important;
+    font-size: 10px !important;
   }
 
   /* تأكيد ظهور الخطوط الفاصلة والحدود السوداء الواضحة للطابعات الحرارية */
