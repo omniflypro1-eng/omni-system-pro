@@ -214,58 +214,109 @@ export function MasterReceiptSlip({
   const receiptStyle = Number((settings as any)?.receiptStyle ?? ((settings as any)?.useAlternativeReceiptStyle ? 2 : 1));
 
   // ══════════════════════════════════════════════════════════════════
-  // الشكل الثالث: التصميم المربع / تذكرة الطلب السريع (Compact Square Ticket)
+  // الشكل الثالث: التصميم المربع القصير المطابق تماماً للصورة المرفقة
   // ══════════════════════════════════════════════════════════════════
   if (receiptStyle === 3) {
+    const paymentLabel = order.paymentMethod === "card" ? "شبكة" : "نقد";
     return (
-      <div className="receipt-slip receipt-slip-square border border-black p-2 bg-white" dir="rtl" style={commonSlipStyle}>
-        <div className="text-center pb-1 border-b border-black">
-          <div className="font-black text-lg tracking-tight mb-0.5">{businessName}</div>
-          <div className="inline-block bg-black text-white font-black text-[11px] px-2 py-0.5 rounded">
-            {copyLabel || "تذكرة طلب سريع"}
+      <div className="receipt-slip receipt-slip-shape3" dir="rtl" style={commonSlipStyle}>
+        {/* 1) اسم النشاط بالمنتصف */}
+        <div className="text-center pt-0 pb-0.5">
+          <div className="receipt-business-name font-black text-lg text-black leading-tight">
+            {businessName}
           </div>
         </div>
 
-        {/* Big Order Number Box */}
-        <div className="my-1.5 p-1.5 border-2 border-black text-center bg-gray-50 rounded">
-          <div className="text-[10px] font-bold text-gray-700">رقم الطلب اليومي</div>
-          <div className="text-3xl font-black tracking-tighter my-0.5 text-black">
-            <Num>{dailyOrderNumber}</Num>
+        {/* 2) عنوان الفاتورة تحته خط متصل */}
+        <div className="text-center font-bold text-sm text-black underline decoration-1 underline-offset-2 my-0.5 leading-none">
+          {copyLabel || "فاتورة خاصة بالزبون"}
+        </div>
+
+        {/* 3) رقم الهاتف */}
+        <div className="text-center text-[11px] font-bold text-black dir-ltr my-0.5 leading-none">
+          <Num>{effPhone || "780780116 - 775695953"}</Num>
+        </div>
+
+        {/* 4) شريط البيانات الثلاثي (التاريخ | رقم الطلب اليومي البارز | رقم الطاولة والوقت) */}
+        <div className="flex justify-between items-center text-xs py-1 px-0.5 font-bold my-1 border-t border-b border-black">
+          {/* اليسار: التاريخ */}
+          <div className="flex flex-col items-start text-left min-w-0">
+            <span className="font-mono font-bold text-[11px] text-black dir-ltr leading-tight">
+              <Num>{date}</Num>
+            </span>
           </div>
-          <div className="text-[10px] font-bold text-black flex justify-center gap-2">
-            <span>النوع: {orderTypeLabel}</span>
-            {order.tableNumber && <span>طاولة: <Num>{order.tableNumber}</Num></span>}
+
+          {/* الوسط: رقم الطلب اليومي بخط كبير عريض تحته (محلي/نقد) */}
+          <div className="flex flex-col items-center justify-center px-1">
+            <span className="text-3xl font-black text-black leading-none tracking-tighter" style={{ fontVariantNumeric: "tabular-nums" }}>
+              <Num>{dailyOrderNumber}</Num>
+            </span>
+            <span className="text-xs font-black text-black mt-0.5 leading-none">
+              {orderTypeLabel}/{paymentLabel}
+            </span>
+          </div>
+
+          {/* اليمين: رقم الطاولة والوقت */}
+          <div className="flex flex-col items-end text-right min-w-0">
+            <span className="text-[10px] text-gray-700 leading-none mb-0.5">
+              رقم الطاولة {order.tableNumber ? <Num>{order.tableNumber}</Num> : ""}
+            </span>
+            <span className="font-mono font-bold text-[11px] text-black dir-ltr leading-tight">
+              <Num>{time}</Num>
+            </span>
           </div>
         </div>
 
-        {/* Meta Info */}
-        <div className="flex justify-between items-center text-[10px] font-bold border-b border-black pb-1 mb-1">
-          <span><Num>{date} {time}</Num></span>
-          <span>الكاشير: {cashierName || order.cashierName || "مدير النظام"}</span>
-        </div>
+        {/* 5) جدول الأصناف المطابق تماماً كالصورة: الصنف | الكمية | ت.م | الإجمالي */}
+        <table className="receipt-table w-full border-collapse text-xs my-1">
+          <thead>
+            <tr className="border-b border-black text-gray-800">
+              <th className="text-right p-1 font-black w-2/5">الصنف</th>
+              <th className="text-center p-1 font-black w-1/5">الكمية</th>
+              <th className="text-center p-1 font-black w-1/5">ت.م</th>
+              <th className="text-left p-1 font-black w-1/5">الإجمالي</th>
+            </tr>
+          </thead>
+          <tbody>
+            {order.items?.map((item, idx) => {
+              const uPrice = item.unitPrice ?? item.price ?? 0;
+              const lTotal = uPrice * item.quantity;
+              return (
+                <tr key={idx} className="border-b border-gray-300">
+                  <td className="text-right p-1 font-bold text-black" style={{ whiteSpace: "normal", wordBreak: "break-word" }}>
+                    {item.productName}
+                  </td>
+                  <td className="text-center p-1 font-black text-black">
+                    <Num>{item.quantity}</Num>
+                  </td>
+                  <td className="text-center p-1 font-bold text-black">
+                    <Num>{uPrice.toLocaleString("en-US")}</Num>
+                  </td>
+                  <td className="text-left p-1 font-black text-black">
+                    <Num>{lTotal.toLocaleString("en-US")}</Num>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+          <tfoot>
+            <tr className="border-t-2 border-black font-black">
+              <td colSpan={3} className="text-right p-1 font-black text-xs">
+                إجمالي الفاتورة:
+              </td>
+              <td className="text-left p-1 font-black text-xs whitespace-nowrap">
+                <Num>{(order.total ?? 0).toLocaleString("en-US")}</Num>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
 
-        {/* Items */}
-        <div className="space-y-1 my-1 text-xs">
-          {order.items?.map((item, idx) => (
-            <div key={idx} className="flex justify-between items-center border-b border-dotted border-gray-400 pb-0.5">
-              <span className="font-bold text-black truncate max-w-[150px]">{item.productName}</span>
-              <div className="flex items-center gap-2 shrink-0">
-                <span className="bg-gray-200 px-1.5 py-0.5 font-black text-[11px] rounded"><Num>{item.quantity}</Num></span>
-                <span className="font-mono font-bold"><Num>{((item.unitPrice ?? item.price ?? 0) * item.quantity).toLocaleString("en-US")}</Num></span>
-              </div>
-            </div>
-          ))}
+        {/* 6) تذييل الملاحظات ورسالة الإيصال */}
+        <div className="text-center text-[10px] font-bold text-black my-1 leading-tight">
+          {footerMsg || "عزيزي العميل اطلب رقم الإيصال عند الشراء"}
         </div>
-
-        {/* Total */}
-        <div className="flex justify-between items-center font-black text-xs bg-gray-100 p-1 border border-black mt-1.5">
-          <span>الإجمالي النهائي:</span>
-          <span><Num>{(order.total ?? 0).toLocaleString("en-US")}</Num> {currency}</span>
-        </div>
-
-        {/* Footer */}
-        <div className="text-center text-[9px] font-bold text-gray-700 mt-1">
-          {footerMsg || "شكراً لزيارتكم .. نتمنى لكم سعادة دائمـة"}
+        <div className="text-center text-[9px] font-bold text-gray-600 mt-0.5">
+          شكراً لزيارتكم
         </div>
       </div>
     );

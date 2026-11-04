@@ -607,6 +607,53 @@ export default function Settings() {
                 <CardDescription>تحكم في البيانات والعناصر المطبوعة على فواتير المبيعات والمخازن وسندات القبض/الصرف</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* ─── اختيار طراز شكل الفاتورة المعتمد للطباعة ─── */}
+                <div className="p-3 bg-slate-50 dark:bg-slate-900 border-2 border-indigo-500/30 rounded-xl space-y-2">
+                  <label className="text-sm font-black text-slate-900 dark:text-white block">
+                    🎯 اختيار طراز شكل الفاتورة المعتمد في نظام المبيعات والكاشير:
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => { setField("receiptStyle", 1); setField("useAlternativeReceiptStyle", false); }}
+                      className={`p-3 rounded-lg border text-right transition-all cursor-pointer ${
+                        currentStyle === 1
+                          ? "bg-indigo-600 text-white border-indigo-700 font-bold shadow-sm"
+                          : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-300 hover:bg-slate-100"
+                      }`}
+                    >
+                      <div className="font-black text-xs mb-0.5">الشكل 1: القياسي الكامل</div>
+                      <div className="text-[10px] opacity-90">شكل كامل يتضمن الشعار والتفاصيل القياسية</div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => { setField("receiptStyle", 2); setField("useAlternativeReceiptStyle", true); }}
+                      className={`p-3 rounded-lg border text-right transition-all cursor-pointer ${
+                        currentStyle === 2
+                          ? "bg-blue-600 text-white border-blue-700 font-bold shadow-sm"
+                          : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-300 hover:bg-slate-100"
+                      }`}
+                    >
+                      <div className="font-black text-xs mb-0.5">الشكل 2: البديل الموفر للورق</div>
+                      <div className="text-[10px] opacity-90">تصميم قصير وموفر للورق للطلب والسندات</div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => { setField("receiptStyle", 3); setField("useAlternativeReceiptStyle", false); }}
+                      className={`p-3 rounded-lg border text-right transition-all cursor-pointer ${
+                        currentStyle === 3
+                          ? "bg-emerald-600 text-white border-emerald-700 font-bold shadow-sm"
+                          : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-300 hover:bg-slate-100"
+                      }`}
+                    >
+                      <div className="font-black text-xs mb-0.5">الشكل 3: المربع (مطابق للصورة)</div>
+                      <div className="text-[10px] opacity-90">تصميم مربع قصير مع ترقيم بارز وتذييل الإيصال</div>
+                    </button>
+                  </div>
+                </div>
+
                 <div className="space-y-1">
                   <label className="text-sm font-medium">رسالة الشكر أو التنويه في نهاية الفاتورة</label>
                   <Input
