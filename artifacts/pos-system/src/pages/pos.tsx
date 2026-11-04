@@ -1416,7 +1416,7 @@ export default function Pos() {
     // دمج الإعدادات المحفوظة مع الكاش المحلي لضمان دقة الهوامش وتطبيقها على الشكلين الأول والثاني
     let cachedPs: any = null;
     try {
-      const raw = localStorage.getItem("pos_printer_settings_v1");
+      const raw = localStorage.getItem("pos_system_settings_v1");
       if (raw) cachedPs = JSON.parse(raw);
     } catch {}
     const ps = { ...(printerSettings || {}), ...(cachedPs || {}) };
