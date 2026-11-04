@@ -345,7 +345,7 @@ export function MasterReceiptSlip({
             </>
           ) : (
             <>
-              <span className="text-[10px] font-bold text-gray-700 leading-none mb-0.5">رقم الفاتورة</span>
+              <span className="text-[10px] font-bold text-gray-700 leading-none mb-0.5">رقم</span>
               <span className="text-2xl font-black text-black leading-none tracking-tighter">
                 <Num>{cleanInvoiceNumber}</Num>
               </span>
@@ -358,7 +358,7 @@ export function MasterReceiptSlip({
           <span className="text-[10px] text-gray-700 leading-none">المبيعات/</span>
           <span className="font-black text-xs text-black leading-tight truncate">{cashierName ?? "مدير النظام"}</span>
           <span className="font-mono font-black text-[11px] text-black dir-ltr mt-0.5">
-            <Num>الفاتورة: {cleanInvoiceNumber}</Num>
+            <Num># {cleanInvoiceNumber}</Num>
           </span>
         </div>
       </div>
