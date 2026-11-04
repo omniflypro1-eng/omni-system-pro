@@ -582,6 +582,38 @@ export function DeptReceiptSlip({
   const cleanInvoiceNumber = formatOrderInvoiceNumber(order.invoiceNumber, order.id);
   const dailyOrderNumber = rawDaily !== undefined && rawDaily !== null ? String(rawDaily) : cleanInvoiceNumber;
 
+  const isShape3 = Number((settings as any)?.receiptStyle) === 3;
+  
+  if (isShape3) {
+    return (
+      <div className="receipt-slip receipt-slip-shape3" dir="rtl" style={commonSlipStyle}>
+        <div className="text-center pt-0 pb-0">
+          <div className="receipt-business-name font-black text-base text-black leading-tight">
+            {dept.categoryName}
+          </div>
+        </div>
+        <div className="text-center font-bold text-xs text-black underline decoration-1 underline-offset-2 my-0.5 leading-none">
+          فاتورة القسم
+        </div>
+        <div className="flex justify-between items-center text-xs py-0.5 px-0.5 font-bold my-0.5 border-t border-b border-black">
+          <span className="font-mono font-bold text-[10px] text-black dir-ltr leading-tight"><Num>{time}</Num></span>
+          <span className="text-2xl font-black text-black leading-none tracking-tighter"><Num>{dailyOrderNumber}</Num></span>
+          <span className="font-mono font-bold text-[10px] text-black dir-ltr leading-tight">{orderTypeLabel}</span>
+        </div>
+        <table className="receipt-table w-full border-collapse text-[11px] my-0.5">
+          <tbody>
+            {items.map((item, idx) => (
+              <tr key={idx} className="border-b border-gray-300">
+                <td className="text-right p-0.5 font-bold text-black">{item.productName}</td>
+                <td className="text-center p-0.5 font-black text-black"><Num>{item.quantity}</Num></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
   return (
     <div
       className="receipt-slip receipt-dept-slip"
