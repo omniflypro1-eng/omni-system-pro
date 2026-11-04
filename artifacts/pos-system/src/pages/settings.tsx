@@ -960,16 +960,6 @@ function InvoiceLivePreviewCard({
           <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
             <Button
               type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleQuickTestPrint}
-              className="gap-1.5 text-xs font-bold cursor-pointer"
-            >
-              <Printer className="w-3.5 h-3.5 text-blue-600" />
-              طباعة تجريبية
-            </Button>
-            <Button
-              type="button"
               size="sm"
               onClick={onSave}
               disabled={isSaving}
