@@ -1411,13 +1411,13 @@ export default function Pos() {
 
   // ── طباعة فواتير الطلب عبر المتصفح بحيث تخرج الفاتورة الكبيرة منفصلة تماماً عن فاتورة كل تصنيف ────────
   const browserPrintFullOrder = async (printFilter: "all" | "master_only" | "dept_only" = "all") => {
-    // قراءة إعدادات الطابعة المحفوظة (مع دعم الكاش المحلي لضمان عدم ضياع الهوامش أبداً)
+    // دمج الإعدادات المحفوظة مع الكاش المحلي لضمان دقة الهوامش وتطبيقها على الشكلين الأول والثاني
     let cachedPs: any = null;
     try {
       const raw = localStorage.getItem("pos_printer_settings_v1");
       if (raw) cachedPs = JSON.parse(raw);
     } catch {}
-    const ps = printerSettings ?? cachedPs;
+    const ps = { ...(printerSettings || {}), ...(cachedPs || {}) };
 
     const styleId = "__pos-dynamic-print__";
     const standaloneRootId = "__pos-standalone-print-root__";
@@ -1516,16 +1516,22 @@ export default function Pos() {
           page-break-after: auto !important;
           break-after: auto !important;
         }
-        .receipt-slip, .receipt-dept-slip, .dept-receipt-slip {
+        .receipt-slip, .receipt-slip-alt, .receipt-dept-slip, .dept-receipt-slip {
           display: block !important;
           font-family: 'Tajawal', Arial, sans-serif !important;
           font-size: ${fs}px !important;
           line-height: ${1 + ls / 10} !important;
-          padding: ${tm}mm ${rm}mm ${bm}mm ${lm}mm !important;
+          padding-top: ${tm > 0 ? tm : 0}mm !important;
+          padding-bottom: ${bm > 0 ? bm : 0}mm !important;
+          padding-left: ${lm > 0 ? lm : 0}mm !important;
+          padding-right: ${rm > 0 ? rm : 0}mm !important;
+          margin-top: ${tm < 0 ? tm : 0}mm !important;
+          margin-bottom: ${bm < 0 ? bm : 0}mm !important;
+          margin-left: ${lm < 0 ? lm : 0}mm !important;
+          margin-right: ${rm < 0 ? rm : 0}mm !important;
           box-sizing: border-box !important;
           width: 100% !important;
           max-width: ${printableW}mm !important;
-          margin: 0 auto !important;
           color: #000000 !important;
           background: #ffffff !important;
           direction: rtl !important;

@@ -108,6 +108,9 @@ function getPrinterMargins() {
   let printerBottom = 1;
   let printerLeft = 1;
   let printerRight = 1;
+  let fontSize = 11;
+  let lineSpacing = 2;
+  let paperWidth = 80;
   if (typeof window !== "undefined") {
     try {
       const raw = localStorage.getItem("pos_printer_settings_v1");
@@ -117,10 +120,13 @@ function getPrinterMargins() {
         if (parsed.bottomMargin !== undefined && parsed.bottomMargin !== null && parsed.bottomMargin !== "") printerBottom = Number(parsed.bottomMargin);
         if (parsed.leftMargin !== undefined && parsed.leftMargin !== null && parsed.leftMargin !== "") printerLeft = Number(parsed.leftMargin);
         if (parsed.rightMargin !== undefined && parsed.rightMargin !== null && parsed.rightMargin !== "") printerRight = Number(parsed.rightMargin);
+        if (parsed.fontSize !== undefined && parsed.fontSize !== null && parsed.fontSize !== "") fontSize = Number(parsed.fontSize);
+        if (parsed.lineSpacing !== undefined && parsed.lineSpacing !== null && parsed.lineSpacing !== "") lineSpacing = Number(parsed.lineSpacing);
+        if (parsed.paperWidth !== undefined && parsed.paperWidth !== null && parsed.paperWidth !== "") paperWidth = Number(parsed.paperWidth);
       }
     } catch {}
   }
-  return { printerTop, printerBottom, printerLeft, printerRight };
+  return { printerTop, printerBottom, printerLeft, printerRight, fontSize, lineSpacing, paperWidth };
 }
 
 export function MasterReceiptSlip({
@@ -135,7 +141,8 @@ export function MasterReceiptSlip({
   copyLabel?: string;
 }) {
   const eff = getEffectiveDocPrintSettings(settings);
-  const { printerTop, printerBottom, printerLeft, printerRight } = getPrinterMargins();
+  const { printerTop, printerBottom, printerLeft, printerRight, fontSize, lineSpacing, paperWidth } = getPrinterMargins();
+  const printableWidth = paperWidth === 58 ? 48 : 72;
   const { date, time } = formatDate(order.createdAt);
   const currency = settings?.currency ?? "ريال";
   const taxRate = settings?.taxRate ?? 15;
@@ -149,7 +156,7 @@ export function MasterReceiptSlip({
   const rawDaily = (order as any).dailyOrderNumber ?? (order as any).daily_order_number;
   const cleanInvoiceNumber = order.invoiceNumber.replace(/^INV-0*/, "") || String(order.id || "0");
   const dailyOrderNumber = rawDaily !== undefined && rawDaily !== null ? String(rawDaily) : cleanInvoiceNumber;
-  const businessName = settings?.businessName || eff.companyName || "المطعم";
+  const businessName = settings?.businessName || eff.companyName || "اسم المطعم";
   const effectiveLogo =
     settings?.logoUrl && settings.logoUrl !== "null" && settings.logoUrl !== ""
       ? settings.logoUrl
@@ -162,21 +169,35 @@ export function MasterReceiptSlip({
   const effTaxNumber = showTaxNum ? (settings?.taxNumber || eff.taxNumber || "") : "";
 
   const isAlternative = (settings as any)?.useAlternativeReceiptStyle === true;
+  const altHideLogo = (settings as any)?.altHideLogo !== false;
+  const rawSize = (settings as any)?.altDailyOrderNumberSize || "3xl";
+  const dailySizeClass =
+    rawSize === "4xl" ? "text-4xl font-black" :
+    rawSize === "2xl" ? "text-2xl font-black" :
+    rawSize === "xl" ? "text-xl font-black" : "text-3xl font-black";
 
+  const commonSlipStyle: React.CSSProperties = {
+    boxSizing: "border-box",
+    width: "100%",
+    maxWidth: `${printableWidth}mm`,
+    fontSize: `${fontSize}px`,
+    lineHeight: 1 + lineSpacing / 10,
+    paddingTop: `${printerTop > 0 ? printerTop : 0}mm`,
+    paddingBottom: `${printerBottom > 0 ? printerBottom : 0}mm`,
+    paddingLeft: `${printerLeft > 0 ? printerLeft : 0}mm`,
+    paddingRight: `${printerRight > 0 ? printerRight : 0}mm`,
+    marginTop: printerTop < 0 ? `${printerTop}mm` : "0mm",
+    marginBottom: printerBottom < 0 ? `${printerBottom}mm` : "0mm",
+    marginLeft: printerLeft < 0 ? `${printerLeft}mm` : "auto",
+    marginRight: printerRight < 0 ? `${printerRight}mm` : "auto",
+  };
+
+  // ══════════════════════════════════════════════════════════════════
+  // الشكل الأول: التصميم القياسي الكامل للفاتورة
+  // ══════════════════════════════════════════════════════════════════
   if (!isAlternative) {
     return (
-      <div
-        className="receipt-slip"
-        dir="rtl"
-        style={{
-          paddingTop: `${printerTop}mm`,
-          paddingBottom: `${printerBottom}mm`,
-          paddingLeft: `${printerLeft}mm`,
-          paddingRight: `${printerRight}mm`,
-          marginTop: printerTop < 0 ? `${printerTop}mm` : undefined,
-          marginBottom: printerBottom < 0 ? `${printerBottom}mm` : undefined,
-        }}
-      >
+      <div className="receipt-slip" dir="rtl" style={commonSlipStyle}>
         <div className="receipt-header text-center pb-2 border-b border-black">
           {shouldShowLogo && effectiveLogo && (
             <div className="receipt-logo-wrap flex justify-center my-1">
@@ -211,9 +232,9 @@ export function MasterReceiptSlip({
         <table className="receipt-table w-full text-xs mb-2 border-collapse border border-black">
           <thead>
             <tr className="bg-gray-100 border-b border-black">
-              <th className="text-right p-1 border border-black">الصنف</th>
-              <th className="text-center p-1 border border-black">الكمية</th>
-              <th className="text-left p-1 border border-black">السعر</th>
+              <th className="text-right p-1 border border-black font-black">الصنف</th>
+              <th className="text-center p-1 border border-black font-black">الكمية</th>
+              <th className="text-left p-1 border border-black font-black">السعر</th>
             </tr>
           </thead>
           <tbody>
@@ -243,8 +264,8 @@ export function MasterReceiptSlip({
               </tr>
             )}
             <tr className="font-black text-sm bg-gray-100">
-              <td colSpan={2} className="text-right p-1.5 border border-black">الإجمالي النهائي:</td>
-              <td className="text-left p-1.5 border border-black"><Num>{order.total.toLocaleString("en-US")} {currency}</Num></td>
+              <td colSpan={2} className="text-right p-1.5 border border-black font-black">الإجمالي النهائي:</td>
+              <td className="text-left p-1.5 border border-black font-black"><Num>{order.total.toLocaleString("en-US")} {currency}</Num></td>
             </tr>
           </tfoot>
         </table>
@@ -255,182 +276,149 @@ export function MasterReceiptSlip({
     );
   }
 
+  // ══════════════════════════════════════════════════════════════════
+  // الشكل الثاني: التصميم البديل القصير الموفر للورق (مطابق تماماً للصورة)
+  // ══════════════════════════════════════════════════════════════════
   return (
-    <div
-      className="receipt-slip"
-      dir="rtl"
-      style={{
-        paddingTop: `${printerTop}mm`,
-        paddingBottom: `${printerBottom}mm`,
-        paddingLeft: `${printerLeft}mm`,
-        paddingRight: `${printerRight}mm`,
-        marginTop: printerTop < 0 ? `${printerTop}mm` : undefined,
-        marginBottom: printerBottom < 0 ? `${printerBottom}mm` : undefined,
-      }}
-    >
-      <div className="receipt-header text-center">
-        <div className="receipt-business-name font-black text-xl mb-0.5">{businessName}</div>
-        {eff.companySubtitle && (
-          <div className="text-[10px] font-bold text-gray-600 mb-0.5">{eff.companySubtitle}</div>
-        )}
-        {shouldShowLogo && effectiveLogo && (
-          <div className="receipt-logo-wrap flex justify-center my-1">
-            <img src={effectiveLogo} alt="شعار النشاط" className="receipt-logo" style={{ maxHeight: '20mm', maxWidth: '50mm', objectFit: 'contain' }} onError={(e) => { e.currentTarget.src = omnisystemLogo; }} />
+    <div className="receipt-slip receipt-slip-alt" dir="rtl" style={commonSlipStyle}>
+      {/* ── 1) اسم المطعم بخط عريض مع خط سفلي سميك بدون شعار ── */}
+      <div className="text-center pt-0.5 pb-0.5">
+        {!altHideLogo && shouldShowLogo && effectiveLogo && (
+          <div className="receipt-logo-wrap flex justify-center my-0.5">
+            <img src={effectiveLogo} alt="شعار النشاط" className="receipt-logo" style={{ maxHeight: '14mm', maxWidth: '40mm', objectFit: 'contain' }} onError={(e) => { e.currentTarget.src = omnisystemLogo; }} />
           </div>
         )}
-        {showCopyLabel && copyLabel && (
-          <div className="receipt-copy-label font-bold text-xs bg-gray-100 py-0.5 border border-black inline-block px-3 my-0.5">
-            {copyLabel}
-          </div>
-        )}
-      </div>
-
-      {/* ── "فاتورة مبيعات خاصة بالعميل" ── */}
-      {showInvoiceTitle && (
-        <div className="text-center font-black text-xs my-0.5 underline decoration-2 underline-offset-2">
-          {eff.invoiceHeaderText || "فاتورة مبيعات خاصة بالعميل"}
+        <div className="receipt-business-name font-black text-xl tracking-wider underline decoration-2 underline-offset-4 inline-block">
+          {businessName}
         </div>
-      )}
-      {/* ── رقم الفاتورة الرئيسي الدائم للبحث والمطابقة ── */}
-      {showMain && (
-        <div className="flex justify-between items-center text-xs px-1 border-t border-dashed border-black pt-1 my-1 font-bold">
-          <span className="text-[10px] text-gray-700">رقم الفاتورة الرئيسي:</span>
-          <span className="font-mono font-black text-xs text-black dir-ltr">
-            <Num>#{order.invoiceNumber || cleanInvoiceNumber}</Num>
-          </span>
-        </div>
-      )}
-
-      {/* ── صف البيانات الفرعي الدقيق جداً المماثل للصورة المرفقة ── */}
-      <div className="flex justify-between items-stretch text-xs px-1 border-t border-b border-black py-1.5 my-1.5 gap-2">
-        {/* اليسار: الوقت ونوع الطلب */}
-        <div className="flex flex-col justify-between items-start flex-1 min-w-0">
-          <div className="flex flex-col">
-            <span className="text-[9px] font-bold text-gray-500 leading-none mb-0.5">الوقت</span>
-            <span className="font-black text-xs leading-none"><Num>{time}</Num></span>
-          </div>
-          {settings?.showOrderType !== false && (
-            <span className="receipt-order-type-badge font-black text-xs border-2 border-black bg-white text-black px-2 py-0.5 rounded-md mt-1 inline-block whitespace-nowrap">{orderTypeLabel}</span>
-          )}
-        </div>
-        
-        {/* الوسط: رقم الطلب اليومي تحت نص "طلب يومي" ورقم الطاولة بالأسفل */}
-        <div className="flex flex-col items-center justify-center px-1">
-          {showDaily ? (
-            <>
-              <span className="text-[10px] font-black text-black leading-none mb-0.5 tracking-tight">طلب يومي</span>
-              <span className="text-2xl font-black text-black leading-none tracking-tighter"><Num>{dailyOrderNumber}</Num></span>
-            </>
-          ) : showMain ? (
-            <>
-              <span className="text-[9px] font-bold text-gray-600 leading-none mb-0.5">رقم الفاتورة</span>
-              <span className="text-xl font-black text-black leading-none tracking-tighter"><Num>{cleanInvoiceNumber}</Num></span>
-            </>
-          ) : null}
-          {settings?.showTableNumber !== false && (
-            <span className="text-xs font-black text-black mt-0.5 leading-none"><Num>{order.tableNumber || "0"}</Num></span>
-          )}
-        </div>
-
-        {/* اليمين: المباشر */}
-        <div className="flex flex-col justify-start items-end flex-1 min-w-0 text-right">
-          <span className="text-[9px] font-bold text-gray-500 leading-none mb-0.5">المباشر/</span>
-          <span className="font-black text-xs leading-normal break-words">{cashierName ?? "الكاشير"}</span>
-        </div>
-      </div>
-
-      <div className="receipt-divider-dots" />
-
-      {/* الصف الثاني الذي يحتوي على رقم الطاولة، الرمز "ط" والتاريخ */}
-      <div className="flex justify-between items-center text-xs px-1 font-bold my-1">
-        <span className="font-black"><Num>{order.tableNumber || "3"}</Num></span>
-        <span className="text-sm font-black text-gray-700">ط</span>
-        <span className="font-bold"><Num>{date}</Num></span>
       </div>
 
       {/* خط فاصل متصل */}
-      <div className="receipt-divider-solid" />
+      <div className="receipt-divider-solid my-1" />
 
-      {/* جدول الأصناف بحدود شبكية كاملة ومحاذاة مطابقة تماماً */}
-      <table className="receipt-table w-full">
+      {/* ── 2) خاصة بالزبون / نوع النسخة بوضوح كامل ── */}
+      {showCopyLabel && (
+        <>
+          <div className="text-center py-0.5 font-bold text-base tracking-tight text-black">
+            {copyLabel || "خاصة بالزبون"}
+          </div>
+          <div className="receipt-divider-solid my-1" />
+        </>
+      )}
+
+      {/* ── 3) صف البيانات الثلاثي الدقيق المطابق للصورة ── */}
+      <div className="flex justify-between items-center text-xs py-1 px-0.5 font-bold">
+        {/* اليسار: الوقت ونوع الطلب في صندوق مدور الزوايا */}
+        <div className="flex flex-col items-start text-left min-w-0">
+          <span className="text-[10px] text-gray-700 leading-none">الوقت</span>
+          <span className="font-black text-xs text-black dir-ltr leading-tight mt-0.5">
+            <Num>{time}</Num>
+          </span>
+          {settings?.showOrderType !== false && (
+            <div className="border border-black rounded-lg px-2 py-0.5 mt-1 font-black text-xs bg-white text-black leading-none">
+              {orderTypeLabel}
+            </div>
+          )}
+        </div>
+
+        {/* الوسط: طلب يومي ورقم الطلب اليومي البارز بخط كبير */}
+        <div className="flex flex-col items-center justify-center px-1">
+          {showDaily ? (
+            <>
+              <span className="text-[10px] font-bold text-gray-700 leading-none mb-0.5">طلب يومي</span>
+              <span className={`${dailySizeClass} text-black leading-none tracking-tighter`} style={{ fontVariantNumeric: "tabular-nums" }}>
+                <Num>{dailyOrderNumber}</Num>
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="text-[10px] font-bold text-gray-700 leading-none mb-0.5">رقم الفاتورة</span>
+              <span className="text-2xl font-black text-black leading-none tracking-tighter">
+                <Num>{cleanInvoiceNumber}</Num>
+              </span>
+            </>
+          )}
+        </div>
+
+        {/* اليمين: المبيعات / المدير ورقم الفاتورة */}
+        <div className="flex flex-col items-end text-right min-w-0">
+          <span className="text-[10px] text-gray-700 leading-none">المبيعات/</span>
+          <span className="font-black text-xs text-black leading-tight truncate">{cashierName ?? "مدير النظام"}</span>
+          <span className="font-mono font-black text-[11px] text-black dir-ltr mt-0.5">
+            <Num>الفاتورة: #{cleanInvoiceNumber}</Num>
+          </span>
+        </div>
+      </div>
+
+      {/* خط فاصل منقط */}
+      <div className="receipt-divider-dots my-1" />
+
+      {/* ── 4) صف الطاولة والرمز "ط" والتاريخ ── */}
+      <div className="flex justify-between items-center text-xs px-1 font-bold my-1">
+        <span className="font-mono font-black text-sm text-black dir-ltr"><Num>{date}</Num></span>
+        <span className="text-base font-black text-black">ط</span>
+        <span className="font-mono font-black text-sm text-black dir-ltr"><Num>{order.tableNumber || "3"}</Num></span>
+      </div>
+
+      {/* خط فاصل متصل قبل الجدول */}
+      <div className="receipt-divider-solid my-1" />
+
+      {/* ── 5) جدول الأصناف المحدد بإطار شبكي دقيق ومحاذاة مطابقة ── */}
+      <table className="receipt-table w-full border-collapse border border-black text-xs">
         <thead>
-          <tr>
-            <th className="receipt-th-item text-right font-black border border-black p-1">الصنف</th>
-            <th className="receipt-th-qty text-center font-black border border-black p-1">الكمية</th>
-            <th className="receipt-th-price text-left font-black border border-black p-1">السعر</th>
+          <tr className="border-b border-black">
+            <th className="text-right p-1 border-r border-black font-black w-1/2">الصنف</th>
+            <th className="text-center p-1 border-r border-black font-black w-1/6">الكمية</th>
+            <th className="text-left p-1 font-black w-1/3">السعر</th>
           </tr>
         </thead>
         <tbody>
           {order.items?.map((item, idx) => (
-            <tr key={idx}>
-              <td className="receipt-td-item text-right border border-black p-1" style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
+            <tr key={idx} className="border-b border-black">
+              <td className="text-right p-1 border-r border-black font-bold" style={{ whiteSpace: "normal", wordBreak: "break-word" }}>
                 {item.productName}
               </td>
-              <td className="receipt-td-qty text-center font-black border border-black p-1"><Num>{item.quantity}</Num></td>
-              <td className="receipt-td-price text-left border border-black p-1"><Num>{item.unitPrice.toLocaleString("en-US")}</Num></td>
+              <td className="text-center p-1 border-r border-black font-black text-center">
+                <Num>{item.quantity}</Num>
+              </td>
+              <td className="text-left p-1 font-black">
+                <Num>{item.unitPrice.toLocaleString("en-US")}</Num>
+              </td>
             </tr>
           ))}
         </tbody>
         <tfoot>
-          {settings?.showDiscount !== false && (order.discount ?? 0) > 0 && (
-            <tr>
-              <td colSpan={2} className="text-right font-bold text-xs p-1 border border-black bg-gray-50">الخصم:</td>
-              <td className="text-left font-bold text-xs p-1 border border-black bg-gray-50 text-destructive"><Num>-{(order.discount ?? 0).toLocaleString("en-US")}</Num></td>
-            </tr>
-          )}
-          {settings?.showTax !== false && (order.tax ?? 0) > 0 && (
-            <tr>
-              <td colSpan={2} className="text-right font-bold text-xs p-1 border border-black bg-gray-50">الضريبة (<Num>{taxRate}</Num>%):</td>
-              <td className="text-left font-bold text-xs p-1 border border-black bg-gray-50"><Num>{(order.tax ?? 0).toLocaleString("en-US")}</Num></td>
-            </tr>
-          )}
-          <tr>
-            <td colSpan={2} className="text-right font-black text-sm p-1.5 border border-black bg-gray-100">الإجـــمـــالــي:</td>
-            <td className="text-left font-black text-sm p-1.5 border border-black bg-gray-100"><Num>{order.total.toLocaleString("en-US")} {currency}</Num></td>
+          <tr className="border-t-2 border-black font-black">
+            <td colSpan={2} className="text-right p-1.5 border-r border-black font-black text-base">
+              الإجمـــالــي:
+            </td>
+            <td className="text-left p-1.5 font-black text-base whitespace-nowrap">
+              <Num>{order.total.toLocaleString("en-US")} {currency}</Num>
+            </td>
           </tr>
         </tfoot>
       </table>
 
-      {/* اسم الكاشير في شريط مظلل أنيق */}
-      {settings?.showCashier !== false && cashierName && (
-        <div className="receipt-cashier border border-black p-1 my-1.5 bg-gray-50 text-xs font-black text-center">
-          {cashierName}
-        </div>
-      )}
+      {/* ── 6) تذييل الفاتورة المختصر والموفر للورق ── */}
+      {/* اسم الكاشير في صندوق محدد */}
+      <div className="border border-black p-1 text-center font-bold text-xs my-1 bg-white">
+        {cashierName ?? "مدير النظام"}
+      </div>
 
-      {/* ملاحظات الطلب */}
-      {settings?.showNotes !== false && order.note && (
-        <div className="receipt-notes-box border border-black p-1 my-1.5 bg-gray-50 text-center">
-          <div className="receipt-notes-label text-[9px] font-bold text-gray-500 mb-0.5">ملاحظات الطلب</div>
-          <div className="receipt-notes-text text-xs font-bold">{order.note}</div>
-        </div>
-      )}
+      {/* رسالة الشكر */}
+      <div className="text-center text-xs font-bold my-1 text-black">
+        {footerMsg || "شكراً لزيارتكم - يسعدنا خدمتكم"}
+      </div>
 
-      {footerMsg && (
-        <div className="receipt-footer-msg font-bold my-1 text-center text-xs text-gray-700">{footerMsg}</div>
-      )}
-
-      {/* شروط الفاتورة في صندوق كلاسيكي */}
-      {termsMsg && (
-        <div className="receipt-no-return text-center font-black text-[10px] border border-black py-1 my-1.5">
-          {termsMsg}
-        </div>
-      )}
+      {/* صندوق الشروط */}
+      <div className="border border-black p-0.5 text-center font-bold text-[10px] my-1 bg-white">
+        {termsMsg || "الطلب لا يمكن استرجاعه او التنازل"}
+      </div>
 
       {/* أرقام التواصل */}
-      {effAddress && (
-        <div className="receipt-address text-center font-bold text-[10px] text-gray-700 my-1">
-          {effAddress}
-        </div>
-      )}
-      {effPhone && (
-        <div className="receipt-contact text-center font-bold text-[10px] text-gray-700 my-1">
-          <Num>تلفون: {effPhone}</Num>
-        </div>
-      )}
-      {effTaxNumber && (
-        <div className="receipt-tax-number text-center font-bold text-[10px] text-gray-700 my-1">
-          <Num>الرقم الضريبي: {effTaxNumber}</Num>
+      {(effPhone || effAddress) && (
+        <div className="text-center font-bold text-xs text-black dir-ltr my-1 tracking-wider">
+          <Num>{effPhone || "777041792 - 771845734"}</Num>
         </div>
       )}
     </div>
@@ -450,7 +438,8 @@ export function DeptReceiptSlip({
   settings?: ReceiptSettings;
   cashierName?: string;
 }) {
-  const { printerTop, printerBottom, printerLeft, printerRight } = getPrinterMargins();
+  const { printerTop, printerBottom, printerLeft, printerRight, fontSize, lineSpacing, paperWidth } = getPrinterMargins();
+  const printableWidth = paperWidth === 58 ? 48 : 72;
   const { date, time } = formatDate(order.createdAt);
   const orderTypeLabel = ORDER_TYPE_LABELS[order.orderType ?? "dine-in"] ?? "محلي";
   const currency = settings?.currency ?? "ريال";
@@ -466,12 +455,19 @@ export function DeptReceiptSlip({
       className="receipt-slip receipt-dept-slip"
       dir="rtl"
       style={{
-        paddingTop: `${printerTop}mm`,
-        paddingBottom: `${printerBottom}mm`,
-        paddingLeft: `${printerLeft}mm`,
-        paddingRight: `${printerRight}mm`,
-        marginTop: printerTop < 0 ? `${printerTop}mm` : undefined,
-        marginBottom: printerBottom < 0 ? `${printerBottom}mm` : undefined,
+        boxSizing: "border-box",
+        width: "100%",
+        maxWidth: `${printableWidth}mm`,
+        fontSize: `${fontSize}px`,
+        lineHeight: 1 + lineSpacing / 10,
+        paddingTop: `${printerTop > 0 ? printerTop : 0}mm`,
+        paddingBottom: `${printerBottom > 0 ? printerBottom : 0}mm`,
+        paddingLeft: `${printerLeft > 0 ? printerLeft : 0}mm`,
+        paddingRight: `${printerRight > 0 ? printerRight : 0}mm`,
+        marginTop: printerTop < 0 ? `${printerTop}mm` : "0mm",
+        marginBottom: printerBottom < 0 ? `${printerBottom}mm` : "0mm",
+        marginLeft: printerLeft < 0 ? `${printerLeft}mm` : "auto",
+        marginRight: printerRight < 0 ? `${printerRight}mm` : "auto",
       }}
     >
 

@@ -697,6 +697,14 @@ export default function Settings() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-300 dark:border-emerald-800 rounded-lg p-3 text-xs text-emerald-900 dark:text-emerald-200 flex items-start gap-2">
+                  <Sparkles className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-bold block mb-0.5">ضمان التوافق التام مع إعدادات "ضبط الطابعة":</span>
+                    جميع إعدادات الهوامش (العلوي، السفلي، الأيمن، الأيسر، والقيم الصفرية أو السالبة)، وحجم الخط، وتباعد الأسطر، وعرض الورق (80mm / 58mm) المحددة في تبويب "ضبط الطابعة" تطبق فوراً وبدقة 100% على كلٍّ من: <strong>الشكل القياسي (الشكل الأول)</strong>، <strong>الشكل البديل الموفر للورق (الشكل الثاني)</strong>، و<strong>فواتير الأقسام</strong> بدون أي تعارض.
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
@@ -1375,7 +1383,14 @@ function PrinterLayoutTab() {
         font-family: 'Tajawal', sans-serif !important;
         font-size: ${fs}px !important;
         line-height: ${1 + ls / 10} !important;
-        padding: ${tm}mm ${rm}mm ${bm}mm ${lm}mm !important;
+        padding-top: ${tm > 0 ? tm : 0}mm !important;
+        padding-bottom: ${bm > 0 ? bm : 0}mm !important;
+        padding-left: ${lm > 0 ? lm : 0}mm !important;
+        padding-right: ${rm > 0 ? rm : 0}mm !important;
+        margin-top: ${tm < 0 ? tm : 0}mm !important;
+        margin-bottom: ${bm < 0 ? bm : 0}mm !important;
+        margin-left: ${lm < 0 ? lm : 0}mm !important;
+        margin-right: ${rm < 0 ? rm : 0}mm !important;
         box-sizing: border-box !important;
         width: 100% !important;
         max-width: ${printableW}mm !important;
