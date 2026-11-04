@@ -666,15 +666,19 @@ export default function Settings() {
                   {[
                     ["useAlternativeReceiptStyle", "تفعيل الطراز والتصميم البديل لفاتورة الطلبات والكاشير (قصير وموفر للورق)"],
                     ["altHideLogo", "إخفاء شعار المؤسسة تماماً في الطراز البديل (حسب التصميم المرفق)"],
+                    ["altHideTaxHeader", "حذف وإلغاء نص 'فاتورة مبيعات ضريبية' والرقم الضريبي تماماً من الفاتورة البديلة"],
+                    ["altShowAddressInFooter", "عرض نص العنوان بالتذييل بدلاً من رسالة 'شكراً لزيارتكم' لتقليص طول الفاتورة"],
+                    ["altShowPhonesInFooterBox", "عرض أرقام التواصل في صندوق التذييل بدلاً من نص شروط الاسترجاع"],
+                    ["altCompactDeptSlip", "تقليص فاتورة الأقسام بإلغاء 'ط 1' وشبكة البيانات الطويلة وعرضها بسطر مدمج"],
                     ["altShowBigDailyNumber", "إبراز رقم الطلب اليومي بخط كبير وبارز في منتصف الترويسة"],
-                    ["altCompactSpacing", "ضغط المسافات والهوامش العمودية لأقصى حد (لتوفير الورق وعدم الإطالة)"],
+                    ["altCompactSpacing", "ضغط المسافات والهوامش العمودية وتقريب اسم النشاط للخط الفاصل"],
                     ["altApplyToDepartment", "تطبيق الطراز الموحد المختصر على فواتير الأقسام والمطبخ أيضاً"],
                   ].map(([field, label]) => (
                     <div key={field} className="flex items-center justify-between py-2 border-b border-border/50">
                       <label className="text-sm font-bold text-slate-800">{label}</label>
                       <Switch
-                        checked={Boolean(form[field])}
-                        onCheckedChange={v => setField(field, v)}
+                        checked={field === "altHideTaxHeader" || field === "altShowAddressInFooter" || field === "altShowPhonesInFooterBox" || field === "altCompactDeptSlip" ? form[field as any] !== false : Boolean(form[field as any])}
+                        onCheckedChange={v => setField(field as any, v)}
                       />
                     </div>
                   ))}

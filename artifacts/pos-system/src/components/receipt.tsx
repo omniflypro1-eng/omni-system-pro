@@ -166,7 +166,10 @@ export function MasterReceiptSlip({
   const termsMsg = eff.termsAndConditions || "الطلب لا يمكن استرجاعه أو إلغاؤه";
   const effAddress = settings?.address || eff.address;
   const effPhone = settings?.phone || eff.phone;
-  const effTaxNumber = showTaxNum ? (settings?.taxNumber || eff.taxNumber || "") : "";
+  const rawTax = settings?.taxNumber ?? (eff as any)?.taxNumber ?? "";
+  const cleanTax = String(rawTax).trim();
+  const hasValidTax = cleanTax !== "" && cleanTax !== "null" && cleanTax !== "undefined";
+  const effTaxNumber = showTaxNum && hasValidTax ? cleanTax : "";
 
   const isAlternative = (settings as any)?.useAlternativeReceiptStyle === true;
   const altHideLogo = (settings as any)?.altHideLogo !== false;
@@ -281,33 +284,33 @@ export function MasterReceiptSlip({
   // ══════════════════════════════════════════════════════════════════
   return (
     <div className="receipt-slip receipt-slip-alt" dir="rtl" style={commonSlipStyle}>
-      {/* ── 1) اسم المطعم بخط عريض مع خط سفلي سميك بدون شعار ── */}
-      <div className="text-center pt-0.5 pb-0.5">
+      {/* ── 1) اسم المطعم مقرب تماماً إلى الخط بدون شعار وبدون نصوص ضريبية ── */}
+      <div className="text-center pt-0 pb-0">
         {!altHideLogo && shouldShowLogo && effectiveLogo && (
           <div className="receipt-logo-wrap flex justify-center my-0.5">
             <img src={effectiveLogo} alt="شعار النشاط" className="receipt-logo" style={{ maxHeight: '14mm', maxWidth: '40mm', objectFit: 'contain' }} onError={(e) => { e.currentTarget.src = omnisystemLogo; }} />
           </div>
         )}
-        <div className="receipt-business-name font-black text-xl tracking-wider underline decoration-2 underline-offset-4 inline-block">
+        <div className="receipt-business-name font-black text-xl tracking-wider underline decoration-2 underline-offset-2 inline-block leading-tight mb-0">
           {businessName}
         </div>
       </div>
 
-      {/* خط فاصل متصل */}
-      <div className="receipt-divider-solid my-1" />
+      {/* خط فاصل متصل ملتصق بالاسم مباشرة */}
+      <div className="receipt-divider-solid my-0.5" />
 
-      {/* ── 2) خاصة بالزبون / نوع النسخة بوضوح كامل ── */}
+      {/* ── 2) خاصة بالزبون / نوع النسخة بوضوح كامل وبدون نص ضريبي ── */}
       {showCopyLabel && (
         <>
-          <div className="text-center py-0.5 font-bold text-base tracking-tight text-black">
+          <div className="text-center py-0.5 font-bold text-base tracking-tight text-black leading-none">
             {copyLabel || "خاصة بالزبون"}
           </div>
-          <div className="receipt-divider-solid my-1" />
+          <div className="receipt-divider-solid my-0.5" />
         </>
       )}
 
       {/* ── 3) صف البيانات الثلاثي الدقيق المطابق للصورة ── */}
-      <div className="flex justify-between items-center text-xs py-1 px-0.5 font-bold">
+      <div className="flex justify-between items-center text-xs py-0.5 px-0.5 font-bold">
         {/* اليسار: الوقت ونوع الطلب في صندوق مدور الزوايا */}
         <div className="flex flex-col items-start text-left min-w-0">
           <span className="text-[10px] text-gray-700 leading-none">الوقت</span>
@@ -315,7 +318,7 @@ export function MasterReceiptSlip({
             <Num>{time}</Num>
           </span>
           {settings?.showOrderType !== false && (
-            <div className="border border-black rounded-lg px-2 py-0.5 mt-1 font-black text-xs bg-white text-black leading-none">
+            <div className="border border-black rounded-lg px-2 py-0.5 mt-0.5 font-black text-xs bg-white text-black leading-none">
               {orderTypeLabel}
             </div>
           )}
@@ -351,17 +354,17 @@ export function MasterReceiptSlip({
       </div>
 
       {/* خط فاصل منقط */}
-      <div className="receipt-divider-dots my-1" />
+      <div className="receipt-divider-dots my-0.5" />
 
       {/* ── 4) صف الطاولة والرمز "ط" والتاريخ ── */}
-      <div className="flex justify-between items-center text-xs px-1 font-bold my-1">
+      <div className="flex justify-between items-center text-xs px-1 font-bold my-0.5">
         <span className="font-mono font-black text-sm text-black dir-ltr"><Num>{date}</Num></span>
         <span className="text-base font-black text-black">ط</span>
         <span className="font-mono font-black text-sm text-black dir-ltr"><Num>{order.tableNumber || "3"}</Num></span>
       </div>
 
       {/* خط فاصل متصل قبل الجدول */}
-      <div className="receipt-divider-solid my-1" />
+      <div className="receipt-divider-solid my-0.5" />
 
       {/* ── 5) جدول الأصناف المحدد بإطار شبكي دقيق ومحاذاة مطابقة ── */}
       <table className="receipt-table w-full border-collapse border border-black text-xs">
@@ -401,24 +404,25 @@ export function MasterReceiptSlip({
 
       {/* ── 6) تذييل الفاتورة المختصر والموفر للورق ── */}
       {/* اسم الكاشير في صندوق محدد */}
-      <div className="border border-black p-1 text-center font-bold text-xs my-1 bg-white">
+      <div className="border border-black p-0.5 text-center font-bold text-xs my-0.5 bg-white">
         {cashierName ?? "مدير النظام"}
       </div>
 
-      {/* رسالة الشكر */}
-      <div className="text-center text-xs font-bold my-1 text-black">
-        {footerMsg || "شكراً لزيارتكم - يسعدنا خدمتكم"}
-      </div>
+      {/* نص العنوان بدلاً من رسالة الشكر لتقليص طول الفاتورة واستهلاك الورق */}
+      {(effAddress || settings?.address) ? (
+        <div className="text-center text-xs font-bold my-0.5 text-black leading-tight">
+          {effAddress || settings?.address}
+        </div>
+      ) : footerMsg ? (
+        <div className="text-center text-xs font-bold my-0.5 text-black leading-tight">
+          {footerMsg}
+        </div>
+      ) : null}
 
-      {/* صندوق الشروط */}
-      <div className="border border-black p-0.5 text-center font-bold text-[10px] my-1 bg-white">
-        {termsMsg || "الطلب لا يمكن استرجاعه او التنازل"}
-      </div>
-
-      {/* أرقام التواصل */}
-      {(effPhone || effAddress) && (
-        <div className="text-center font-bold text-xs text-black dir-ltr my-1 tracking-wider">
-          <Num>{effPhone || "777041792 - 771845734"}</Num>
+      {/* أرقام التواصل في صندوق التذييل بدلاً من نص الشروط المكرر */}
+      {(effPhone || settings?.phone) && (
+        <div className="border border-black p-0.5 text-center font-bold text-xs my-0.5 bg-white dir-ltr tracking-wider">
+          <Num>{effPhone || settings?.phone || "777041792 - 771845734"}</Num>
         </div>
       )}
     </div>
@@ -471,58 +475,43 @@ export function DeptReceiptSlip({
       }}
     >
 
-      {/* ── اسم التصنيف في مستطيل بارز وعريض مطابق تماماً للصورة ── */}
-      <div className="border border-black bg-gray-50 text-center font-black text-lg py-1 my-1">
+      {/* ── اسم التصنيف في مستطيل محدد وموجز ── */}
+      <div className="border border-black bg-gray-50 text-center font-black text-base py-0.5 my-0.5">
         {dept.categoryName}
       </div>
 
-      {/* ── الشبكة الثلاثية للبيانات الفرعية المطابقة تماماً للصورة الثانية ── */}
-      <div className="flex justify-between items-stretch text-xs border border-black p-1 my-1.5 gap-1.5">
-        
-        {/* اليسار: تفاصيل أمر الصرف والوقت والتاريخ والمسلسل الفرعي */}
-        <div className="flex flex-col justify-between items-start flex-1 min-w-0 text-left">
-          <div className="flex flex-col items-start leading-none gap-1">
-            <span className="font-extrabold text-[10px] text-gray-700">أمر صرف</span>
-            <span className="font-black text-xs text-black"><Num>{time}</Num></span>
-          </div>
-          <div className="flex justify-between items-center w-full mt-1.5">
-            <span className="font-black text-xs text-black"><Num>{date}</Num></span>
-            {showMain && (
-              <span className="font-mono font-black text-[10px] text-black bg-gray-100 px-1 border border-black rounded-sm" title="رقم الفاتورة الرئيسي">
-                #{order.invoiceNumber || cleanInvoiceNumber}
-              </span>
-            )}
-          </div>
+      {/* ── شريط بيانات مدمج ومختصر جداً بدون (ط 1) وبدون الشبكة الطويلة لتقليص طول الفاتورة ── */}
+      <div className="flex justify-between items-center text-xs py-0.5 px-1 border border-black font-bold my-0.5 bg-white">
+        <div className="flex items-center gap-1.5">
+          {showMain && (
+            <span className="font-mono font-black text-[11px] text-black bg-gray-100 px-1 border border-black rounded-xs">
+              #{order.invoiceNumber || cleanInvoiceNumber}
+            </span>
+          )}
+          <span className="text-[10px] text-gray-700 dir-ltr font-bold">
+            <Num>{time}</Num>
+          </span>
         </div>
-
-        {/* الوسط: نوع الطلب ورقم الطلب اليومي تحت نص "طلب يومي" */}
-        <div className="flex flex-col items-center justify-center px-1.5 border-l border-r border-black flex-1">
+        <div className="flex items-center gap-1.5">
           {settings?.showOrderType !== false && (
-            <span className="receipt-order-type-badge font-black text-xs border-2 border-black bg-white text-black px-2 py-0.5 rounded-md leading-none mb-1">{orderTypeLabel}</span>
+            <span className="font-black text-xs text-black border border-black px-1.5 py-0.5 rounded-xs bg-white">
+              {orderTypeLabel}
+            </span>
           )}
           {showDaily ? (
-            <>
-              <span className="text-[10px] font-black text-black leading-none mb-0.5">طلب يومي</span>
-              <span className="text-2xl font-black text-black leading-none tracking-tighter"><Num>{dailyOrderNumber}</Num></span>
-            </>
-          ) : showMain ? (
-            <>
-              <span className="text-[9px] font-bold text-gray-600 leading-none mb-0.5">رقم الفاتورة</span>
-              <span className="text-xl font-black text-black leading-none tracking-tighter"><Num>{cleanInvoiceNumber}</Num></span>
-            </>
-          ) : null}
+            <span className="text-sm font-black text-white bg-black px-2 py-0.5 rounded-xs tracking-tight">
+              #{dailyOrderNumber}
+            </span>
+          ) : (
+            <span className="text-xs font-black text-black bg-gray-100 px-1.5 py-0.5 border border-black rounded-xs">
+              #{cleanInvoiceNumber}
+            </span>
+          )}
         </div>
-
-        {/* اليمين: رمز "ط" ورقم الطاولة بالأسفل */}
-        <div className="flex flex-col items-center justify-center w-[45px]">
-          <span className="font-black text-[10px] text-gray-500 leading-none mb-0.5">ط</span>
-          <span className="text-2xl font-black text-black leading-none"><Num>{order.tableNumber || "1"}</Num></span>
-        </div>
-
       </div>
 
       {/* خط فاصل متصل */}
-      <div className="receipt-divider-solid my-1" />
+      <div className="receipt-divider-solid my-0.5" />
 
       {/* ── جدول الأصناف المطابق للصورة تماماً (عمود للكمية وعمود للصنف) ── */}
       <table className="dept-slip-table w-full border-collapse border border-black">
