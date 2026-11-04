@@ -1507,13 +1507,17 @@ export default function Pos() {
           break-inside: avoid !important;
           page-break-before: auto !important;
           break-before: auto !important;
+          page-break-after: always !important;
+          break-after: page !important;
+        }
+        #${standaloneRootId} .print-page:last-child, .print-page:last-child {
           page-break-after: auto !important;
           break-after: auto !important;
         }
         #${standaloneRootId} .print-page + .print-page, .print-page + .print-page {
-          margin-top: 2mm !important;
-          padding-top: 2mm !important;
-          border-top: 1px dashed #000000 !important;
+          margin-top: 0mm !important;
+          padding-top: 0mm !important;
+          border-top: none !important;
         }
         .receipt-slip, .receipt-slip-alt, .receipt-dept-slip, .dept-receipt-slip {
           display: block !important;
