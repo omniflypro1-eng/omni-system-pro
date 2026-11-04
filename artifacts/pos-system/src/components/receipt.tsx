@@ -239,6 +239,12 @@ export function MasterReceiptSlip({
           {copyLabel || "فاتورة خاصة بالزبون"}
         </div>
 
+        {showMain && (
+          <div className="text-center font-mono text-[10px] text-black font-bold mb-0.5 leading-none">
+            م: <Num>{cleanInvoiceNumber}</Num>
+          </div>
+        )}
+
         {/* 3) رقم الهاتف */}
         <div className="text-center text-[10px] font-bold text-black dir-ltr my-0.5 leading-none">
           <Num>{effPhone || "780780116 - 775695953"}</Num>
@@ -611,6 +617,11 @@ export function DeptReceiptSlip({
         <div className="text-center font-bold text-xs text-black underline decoration-1 underline-offset-2 my-0.5 leading-none">
           فاتورة القسم
         </div>
+        {showMain && (
+          <div className="text-center font-mono text-[10px] text-black font-bold mb-0.5 leading-none">
+            م: <Num>{cleanInvoiceNumber}</Num>
+          </div>
+        )}
         <div className="flex justify-between items-center text-xs py-0.5 px-0.5 font-bold my-0.5 border-t border-b border-black">
           <span className="font-mono font-bold text-[10px] text-black dir-ltr leading-tight"><Num>{time}</Num></span>
           <span className="text-2xl font-black text-black leading-none tracking-tighter border border-black px-1.5 py-0.5 rounded-sm"><Num>{dailyOrderNumber}</Num></span>
