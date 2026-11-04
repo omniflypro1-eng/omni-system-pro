@@ -613,7 +613,7 @@ export function DeptReceiptSlip({
         </div>
         <div className="flex justify-between items-center text-xs py-0.5 px-0.5 font-bold my-0.5 border-t border-b border-black">
           <span className="font-mono font-bold text-[10px] text-black dir-ltr leading-tight"><Num>{time}</Num></span>
-          <span className="text-2xl font-black text-black leading-none tracking-tighter"><Num>{dailyOrderNumber}</Num></span>
+          <span className="text-2xl font-black text-black leading-none tracking-tighter border border-black px-1.5 py-0.5 rounded-sm"><Num>{dailyOrderNumber}</Num></span>
           <span className="font-mono font-bold text-[10px] text-black dir-ltr leading-tight">{orderTypeLabel}</span>
         </div>
         <table className="receipt-table w-full border-collapse text-[11px] my-0.5">
