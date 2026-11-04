@@ -103,6 +103,22 @@ function Num({ children }: { children: React.ReactNode }) {
   );
 }
 
+/**
+ * دالة مساعدة معيارية لتنظيف رقم فاتورة الطلب ليكون دائماً عدداً صحيحاً يبدأ من 1 إلى ما لا نهاية
+ * يزيل أي بادئات مثل '#', 'INV-', 'inv-' وأي أحرف أو أصفار بادئة
+ */
+export function formatOrderInvoiceNumber(inv?: string | number | null, fallbackId?: number | null): string {
+  if (inv === undefined || inv === null || inv === "") {
+    return String(fallbackId && fallbackId > 0 ? fallbackId : 1);
+  }
+  const str = String(inv).trim();
+  const digitsOnly = str.replace(/[^\d]/g, "");
+  if (digitsOnly && Number(digitsOnly) > 0) {
+    return String(parseInt(digitsOnly, 10));
+  }
+  return String(fallbackId && fallbackId > 0 ? fallbackId : 1);
+}
+
 function getPrinterMargins() {
   let printerTop = 1;
   let printerBottom = 1;
@@ -154,7 +170,7 @@ export function MasterReceiptSlip({
   const showTaxNum = (settings as any)?.showTaxNumber !== false && (eff as any)?.showTaxNumber !== false;
 
   const rawDaily = (order as any).dailyOrderNumber ?? (order as any).daily_order_number;
-  const cleanInvoiceNumber = order.invoiceNumber.replace(/^INV-0*/, "") || String(order.id || "0");
+  const cleanInvoiceNumber = formatOrderInvoiceNumber(order.invoiceNumber, order.id);
   const dailyOrderNumber = rawDaily !== undefined && rawDaily !== null ? String(rawDaily) : cleanInvoiceNumber;
   const businessName = settings?.businessName || eff.companyName || "اسم المطعم";
   const effectiveLogo =
@@ -225,7 +241,7 @@ export function MasterReceiptSlip({
         )}
 
         <div className="text-xs space-y-1 border-b border-black py-1.5 my-1 font-bold">
-          <div className="flex justify-between"><span>رقم الفاتورة:</span><span className="font-mono"><Num>#{order.invoiceNumber || cleanInvoiceNumber}</Num></span></div>
+          <div className="flex justify-between"><span>رقم الفاتورة:</span><span className="font-mono"><Num>{cleanInvoiceNumber}</Num></span></div>
           <div className="flex justify-between"><span>التاريخ والوقت:</span><span><Num>{date} {time}</Num></span></div>
           <div className="flex justify-between"><span>نوع الطلب:</span><span>{orderTypeLabel}</span></div>
           {cashierName && <div className="flex justify-between"><span>الكاشير:</span><span>{cashierName}</span></div>}
@@ -348,7 +364,7 @@ export function MasterReceiptSlip({
           <span className="text-[10px] text-gray-700 leading-none">المبيعات/</span>
           <span className="font-black text-xs text-black leading-tight truncate">{cashierName ?? "مدير النظام"}</span>
           <span className="font-mono font-black text-[11px] text-black dir-ltr mt-0.5">
-            <Num>الفاتورة: #{cleanInvoiceNumber}</Num>
+            <Num>الفاتورة: {cleanInvoiceNumber}</Num>
           </span>
         </div>
       </div>
@@ -451,7 +467,7 @@ export function DeptReceiptSlip({
   const showDaily = settings?.showDailyOrderNumber !== false;
   const showMain = settings?.showMainInvoiceNumber !== false;
   const rawDaily = (order as any).dailyOrderNumber ?? (order as any).daily_order_number;
-  const cleanInvoiceNumber = order.invoiceNumber.replace(/^INV-0*/, "") || String(order.id || "0");
+  const cleanInvoiceNumber = formatOrderInvoiceNumber(order.invoiceNumber, order.id);
   const dailyOrderNumber = rawDaily !== undefined && rawDaily !== null ? String(rawDaily) : cleanInvoiceNumber;
 
   return (
@@ -485,7 +501,7 @@ export function DeptReceiptSlip({
         <div className="flex items-center gap-1.5">
           {showMain && (
             <span className="font-mono font-black text-[11px] text-black bg-gray-100 px-1 border border-black rounded-xs">
-              #{order.invoiceNumber || cleanInvoiceNumber}
+              {cleanInvoiceNumber}
             </span>
           )}
           <span className="text-[10px] text-gray-700 dir-ltr font-bold">
@@ -500,11 +516,11 @@ export function DeptReceiptSlip({
           )}
           {showDaily ? (
             <span className="text-sm font-black text-white bg-black px-2 py-0.5 rounded-xs tracking-tight">
-              #{dailyOrderNumber}
+              {dailyOrderNumber}
             </span>
           ) : (
             <span className="text-xs font-black text-black bg-gray-100 px-1.5 py-0.5 border border-black rounded-xs">
-              #{cleanInvoiceNumber}
+              {cleanInvoiceNumber}
             </span>
           )}
         </div>

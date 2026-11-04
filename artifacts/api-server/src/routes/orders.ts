@@ -13,6 +13,31 @@ try {
 } catch {}
 
 /**
+ * دالة معيارية لتنظيف رقم الفاتورة وجعله دائماً عدداً صحيحاً موجباً يبدأ من 1 إلى ما لا نهاية
+ * يزيل أي بادئات نصية مثل INV- أو # أو أي أحرف وأصفار بادئة
+ */
+export function normalizeOrderInvoiceNumber(inv?: string | number | null, fallbackId?: number | null): string {
+  if (inv === undefined || inv === null || inv === "") {
+    return String(fallbackId && fallbackId > 0 ? fallbackId : 1);
+  }
+  const str = String(inv).trim();
+  const digitsOnly = str.replace(/[^\d]/g, "");
+  if (digitsOnly && Number(digitsOnly) > 0) {
+    return String(parseInt(digitsOnly, 10));
+  }
+  return String(fallbackId && fallbackId > 0 ? fallbackId : 1);
+}
+
+// تنظيف أي أرقام فواتير تاريخية تحتوي على INV أو # لضمان أن تكون جميع أرقام الفواتير أعداداً صحيحة
+try {
+  const legacyRows = db.prepare("SELECT id, invoice_number FROM orders WHERE invoice_number LIKE '%INV%' OR invoice_number LIKE '#%'").all() as any[];
+  for (const row of legacyRows) {
+    const cleaned = normalizeOrderInvoiceNumber(row.invoice_number, row.id);
+    db.prepare("UPDATE orders SET invoice_number = ? WHERE id = ?").run(cleaned, row.id);
+  }
+} catch {}
+
+/**
  * Calculates the next sequential daily order number (starting at 1) for the current active business day.
  * Automatically and strictly resets to 1 when a new business day begins according to General Settings.
  */
@@ -114,9 +139,10 @@ function formatOrder(o: any, items: any[]) {
     const parsed = parseInt(String(o.invoice_number || "").replace(/\D/g, ""), 10);
     dailyNum = !isNaN(parsed) && parsed > 0 && parsed < 10000 ? parsed : (o.id || 1);
   }
+  const cleanInv = normalizeOrderInvoiceNumber(o.invoice_number, o.id);
   return {
     id: o.id,
-    invoiceNumber: o.invoice_number,
+    invoiceNumber: cleanInv,
     dailyOrderNumber: Number(dailyNum),
     subtotal: o.subtotal,
     discount: o.discount,
@@ -220,9 +246,10 @@ router.post("/orders", (req, res) => {
     const dailyInfo = getNextDailyOrderNumber();
     const dailyOrderNumber = dailyInfo.nextDailyNumber;
     const activeBusinessDate = dailyInfo.activeBusinessDate;
-    // Main permanent searchable invoice number
+    // Main permanent searchable invoice number (integers starting from 1 to infinity)
     const nextMain = getNextMainInvoiceNumber();
-    const invoiceNumber = req.body.invoiceNumber ? String(req.body.invoiceNumber) : nextMain;
+    const rawInv = req.body.invoiceNumber ? String(req.body.invoiceNumber) : nextMain;
+    const invoiceNumber = normalizeOrderInvoiceNumber(rawInv, undefined);
     const createdAt = new Date().toISOString();
 
     let effectiveCustomerId = customerId ? Number(customerId) : null;
@@ -353,6 +380,13 @@ router.post("/orders", (req, res) => {
         createdAt
       );
       orderId = Number(r2.lastInsertRowid);
+    }
+
+    const finalInvoiceNumber = normalizeOrderInvoiceNumber(invoiceNumber, orderId);
+    if (finalInvoiceNumber !== invoiceNumber) {
+      try {
+        db.prepare("UPDATE orders SET invoice_number = ? WHERE id = ?").run(finalInvoiceNumber, orderId);
+      } catch {}
     }
 
     if (effectiveSupplierId) {

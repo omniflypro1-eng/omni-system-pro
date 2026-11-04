@@ -85,7 +85,8 @@ function generateReceiptText(order: Order, settings: any, cashierName: string, p
   const showDaily = settings?.showDailyOrderNumber !== false;
   const showMain = settings?.showMainInvoiceNumber !== false;
   const rawDaily = (order as any).dailyOrderNumber ?? (order as any).daily_order_number;
-  const cleanInvoiceNumber = order.invoiceNumber.replace(/^INV-0*/, "") || String(order.id || "0");
+  const digitsOnly = String(order.invoiceNumber || order.id || "1").replace(/[^\d]/g, "");
+  const cleanInvoiceNumber = digitsOnly && Number(digitsOnly) > 0 ? String(parseInt(digitsOnly, 10)) : String(order.id || 1);
   const dailyOrderNumber = rawDaily !== undefined && rawDaily !== null ? String(rawDaily) : cleanInvoiceNumber;
 
   // Top margin in newlines (1mm ≈ 0-1 blank line)
@@ -103,7 +104,7 @@ function generateReceiptText(order: Order, settings: any, cashierName: string, p
     lines.push(center(`طلب يومي: [ ${dailyOrderNumber} ]`));
   }
   if (showMain) {
-    lines.push(center(`رقم الفاتورة الرئيسي: #${order.invoiceNumber || cleanInvoiceNumber}`));
+    lines.push(center(`رقم الفاتورة الرئيسي: [ ${cleanInvoiceNumber} ]`));
   }
   if (!showDaily && !showMain) {
     lines.push(center(`الرقم المسلسل: [ ${cleanInvoiceNumber} ]`));
@@ -172,7 +173,8 @@ function generateDeptReceiptText(order: Order, dept: any, items: any[], settings
   const showDaily = settings?.showDailyOrderNumber !== false;
   const showMain = settings?.showMainInvoiceNumber !== false;
   const rawDaily = (order as any).dailyOrderNumber ?? (order as any).daily_order_number;
-  const cleanInvoiceNumber = order.invoiceNumber.replace(/^INV-0*/, "") || String(order.id || "0");
+  const digitsOnly = String(order.invoiceNumber || order.id || "1").replace(/[^\d]/g, "");
+  const cleanInvoiceNumber = digitsOnly && Number(digitsOnly) > 0 ? String(parseInt(digitsOnly, 10)) : String(order.id || 1);
   const dailyOrderNumber = rawDaily !== undefined && rawDaily !== null ? String(rawDaily) : cleanInvoiceNumber;
 
   // Top margin in newlines (1mm ≈ 0-1 blank line)
@@ -189,7 +191,7 @@ function generateDeptReceiptText(order: Order, dept: any, items: any[], settings
     lines.push(center(`طلب يومي: [ ${dailyOrderNumber} ]`));
   }
   if (showMain) {
-    lines.push(center(`أمر صرف رقم الفاتورة: #${order.invoiceNumber || cleanInvoiceNumber}`));
+    lines.push(center(`أمر صرف رقم الفاتورة: [ ${cleanInvoiceNumber} ]`));
   }
   if (!showDaily && !showMain) {
     lines.push(center(`أمر صرف رقم: [ ${cleanInvoiceNumber} ]`));

@@ -163,8 +163,8 @@ function generateReceiptText(order: any, settings: any, cashierName: string, pri
     const padLen = Math.floor((w - s.length) / 2);
     return " ".repeat(padLen) + s;
   };
-  const line = (ch = "-") => ch.repeat(w);
-  const cleanInvoiceNumber = (order.invoiceNumber || String(order.id)).replace(/^INV-0*/, "") || "0";
+  const rawInv = String(order.invoiceNumber || order.id || "1").replace(/[^\d]/g, "");
+  const cleanInvoiceNumber = rawInv && Number(rawInv) > 0 ? String(parseInt(rawInv, 10)) : String(order.id || 1);
 
   // Top margin in newlines
   const topMarginLines = Math.max(0, Math.floor((printerSettings?.topMargin ?? 0) / 4));
@@ -239,8 +239,8 @@ function generateDeptReceiptText(order: any, dept: any, items: any[], settings: 
     const padLen = Math.floor((w - s.length) / 2);
     return " ".repeat(padLen) + s;
   };
-  const line = (ch = "-") => ch.repeat(w);
-  const cleanInvoiceNumber = (order.invoiceNumber || String(order.id)).replace(/^INV-0*/, "") || "0";
+  const rawInv = String(order.invoiceNumber || order.id || "1").replace(/[^\d]/g, "");
+  const cleanInvoiceNumber = rawInv && Number(rawInv) > 0 ? String(parseInt(rawInv, 10)) : String(order.id || 1);
 
   // Top margin in newlines
   const topMarginLines = Math.max(0, Math.floor((printerSettings?.topMargin ?? 0) / 4));

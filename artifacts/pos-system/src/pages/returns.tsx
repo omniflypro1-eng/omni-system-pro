@@ -811,7 +811,7 @@ export default function Returns() {
                   جدول أصناف وبنود المردود
                   {foundOrder && (
                     <Badge variant="outline" className="text-[11px] text-emerald-400 border-emerald-500 bg-emerald-950/50 mr-2 font-mono">
-                      الفاتورة الأصلية #{foundOrder.invoiceNumber}
+                      الفاتورة الأصلية: {foundOrder.invoiceNumber}
                     </Badge>
                   )}
                 </span>

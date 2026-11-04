@@ -863,7 +863,7 @@ function InvoiceLivePreviewCard({
 
   const sampleOrder: any = {
     id: 9006,
-    invoiceNumber: "INV-9006",
+    invoiceNumber: "9006",
     dailyOrderNumber: 77,
     orderType: "dine-in",
     tableNumber: "3",

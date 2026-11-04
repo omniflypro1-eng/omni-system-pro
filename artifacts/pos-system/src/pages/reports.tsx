@@ -2078,7 +2078,7 @@ export default function Reports() {
                   <tbody className="divide-y divide-border">
                     {cashierOrders.map((ord: any, idx: number) => (
                       <tr key={ord.id || idx} className="hover:bg-slate-50 transition-colors">
-                        <td className="p-3 font-mono font-bold text-blue-600 border-l">#{ord.invoiceNumber || ord.id}</td>
+                        <td className="p-3 font-mono font-bold text-blue-600 border-l">{ord.invoiceNumber || ord.id}</td>
                         <td className="p-3 text-center border-l text-xs">
                           <span className="px-2 py-0.5 bg-slate-100 rounded font-semibold">
                             {ord.orderType === "dine-in" ? "محلي" : ord.orderType === "takeout" ? "سفري" : ord.orderType === "delivery" ? "توصيل" : (ord.orderType || "عادي")}
