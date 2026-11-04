@@ -23,9 +23,10 @@ import {
   Save, Plus, Trash2, Pencil, Printer, Copy, Building2, Settings2, Upload, X, ShieldCheck,
   Sparkles, Image as ImageIcon, Clock, Moon, Sun, CheckCircle2, AlertCircle, Plane,
   DollarSign, ShoppingCart, Users, Briefcase, FileSpreadsheet, ShieldAlert, Check, RefreshCw,
-  HelpCircle, ArrowRight, CalendarCheck, KeyRound, Fingerprint
+  HelpCircle, ArrowRight, CalendarCheck, KeyRound, Fingerprint, Eye
 } from "lucide-react";
 import { fetchWithAuth } from "@workspace/api-client-react";
+import { MasterReceiptSlip, DeptReceiptSlip } from "@/components/receipt";
 
 // ─────────────────────────────────────────────
 // Main Settings Component
@@ -587,7 +588,21 @@ export default function Settings() {
 
             <Card>
               <CardHeader>
-                <CardTitle>شكل الفاتورة والسندات التجارية والمحاسبية</CardTitle>
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <CardTitle>شكل الفاتورة والسندات التجارية والمحاسبية</CardTitle>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="text-xs font-bold gap-1 text-indigo-600 border-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950"
+                    onClick={() => {
+                      document.getElementById("live-invoice-preview-section")?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    معاينة شكل الفاتورة الحية ⬇️
+                  </Button>
+                </div>
                 <CardDescription>تحكم في البيانات والعناصر المطبوعة على فواتير المبيعات والمخازن وسندات القبض/الصرف</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -712,6 +727,15 @@ export default function Settings() {
               </CardContent>
             </Card>
 
+            <div id="live-invoice-preview-section">
+              <InvoiceLivePreviewCard
+                form={form}
+                setField={setField}
+                onSave={handleSave}
+                isSaving={updateMutation.isPending}
+              />
+            </div>
+
             <Card>
               <CardHeader>
                 <CardTitle>إعدادات الطباعة التلقائية</CardTitle>
@@ -818,6 +842,322 @@ export default function Settings() {
         </Tabs>
       </div>
     </AdminLayout>
+  );
+}
+
+// ─────────────────────────────────────────────
+// Invoice Live Preview Card (معاينة حية وفورية لشكل الفاتورة قبل الحفظ)
+// ─────────────────────────────────────────────
+function InvoiceLivePreviewCard({
+  form,
+  setField,
+  onSave,
+  isSaving,
+}: {
+  form: any;
+  setField: (field: string, value: any) => void;
+  onSave: () => void;
+  isSaving: boolean;
+}) {
+  const [activePreviewTab, setActivePreviewTab] = useState<"customer" | "dept" | "both" | "compare">("customer");
+
+  const sampleOrder: any = {
+    id: 9006,
+    invoiceNumber: "INV-9006",
+    dailyOrderNumber: 77,
+    orderType: "dine-in",
+    tableNumber: "3",
+    createdAt: new Date().toISOString(),
+    subtotal: 4300,
+    discount: 0,
+    tax: 0,
+    total: 4300,
+    currency: form.currency || "ريال",
+    status: "completed",
+    paymentMethod: "cash",
+    note: "بدون شطة - زيادة طحينة",
+    items: [
+      {
+        id: 1,
+        productName: "صحن شاورما عادي",
+        quantity: 1,
+        unitPrice: 4300,
+        total: 4300,
+      },
+    ],
+  };
+
+  const sampleDeptGroup: any = {
+    dept: {
+      id: 1,
+      categoryName: "قسم الشاورما والمشويات",
+      copies: 1,
+      enabled: true,
+      printOrder: 1,
+    },
+    items: [
+      {
+        productName: "صحن شاورما عادي",
+        quantity: 1,
+        unitPrice: 4300,
+        total: 4300,
+      },
+    ],
+  };
+
+  const isAlt = Boolean(form.useAlternativeReceiptStyle);
+
+  const handleQuickTestPrint = () => {
+    const printAreaId = "__settings-invoice-preview-print__";
+    document.getElementById(printAreaId)?.remove();
+    const printable = document.getElementById("settings-live-receipt-container");
+    if (!printable) return;
+
+    const el = document.createElement("div");
+    el.id = printAreaId;
+    el.setAttribute("dir", "rtl");
+    el.innerHTML = printable.innerHTML;
+    document.body.appendChild(el);
+
+    const style = document.createElement("style");
+    style.id = "__settings-preview-style__";
+    style.textContent = `
+      @page { size: ${form.paperWidth ?? 80}mm auto; margin: 0; }
+      @media print {
+        body * { visibility: hidden !important; }
+        #${printAreaId}, #${printAreaId} * { visibility: visible !important; }
+        #${printAreaId} { position: static !important; display: block !important; width: 100% !important; margin: 0 auto !important; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    const cleanup = () => {
+      document.getElementById(printAreaId)?.remove();
+      document.getElementById("__settings-preview-style__")?.remove();
+      window.removeEventListener("afterprint", cleanup);
+    };
+    window.addEventListener("afterprint", cleanup, { once: true });
+    setTimeout(cleanup, 2000);
+    window.print();
+  };
+
+  return (
+    <Card className="border-2 border-indigo-500/40 bg-gradient-to-br from-indigo-50/40 via-white to-slate-50 dark:from-slate-900 dark:to-slate-950 shadow-md overflow-hidden">
+      <CardHeader className="pb-3 border-b bg-white dark:bg-slate-900">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <div className="p-2 bg-indigo-100 dark:bg-indigo-950 text-indigo-600 rounded-lg shrink-0">
+              <Eye className="w-5 h-5" />
+            </div>
+            <div>
+              <CardTitle className="text-base font-black text-slate-900 dark:text-white flex items-center flex-wrap gap-2">
+                <span>معاينة حية ومباشرة لشكل الفاتورة قبل الحفظ</span>
+                <Badge variant={isAlt ? "default" : "secondary"} className={isAlt ? "bg-blue-600 text-white font-bold" : "font-bold"}>
+                  {isAlt ? "الطراز البديل الموفر للورق (مطابق للصورة)" : "الطراز القياسي الكامل"}
+                </Badge>
+              </CardTitle>
+              <CardDescription className="text-xs">
+                تحديث لحظي وفوري مع أي تعديل أو تبديل في الخيارات بالأعلى، لتتأكد من شكل الفاتورة قبل الضغط على حفظ
+              </CardDescription>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleQuickTestPrint}
+              className="gap-1.5 text-xs font-bold cursor-pointer"
+            >
+              <Printer className="w-3.5 h-3.5 text-blue-600" />
+              طباعة تجريبية
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              onClick={onSave}
+              disabled={isSaving}
+              className="gap-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
+            >
+              <Save className="w-3.5 h-3.5" />
+              حفظ الإعدادات الآن
+            </Button>
+          </div>
+        </div>
+
+        {/* View Switcher Tabs */}
+        <div className="flex items-center gap-1.5 pt-3 overflow-x-auto">
+          <Button
+            type="button"
+            size="sm"
+            variant={activePreviewTab === "customer" ? "default" : "ghost"}
+            className="text-xs font-bold gap-1 h-8"
+            onClick={() => setActivePreviewTab("customer")}
+          >
+            <span>فاتورة العميل المباشرة</span>
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant={activePreviewTab === "dept" ? "default" : "ghost"}
+            className="text-xs font-bold gap-1 h-8"
+            onClick={() => setActivePreviewTab("dept")}
+          >
+            <span>بون قسم التحضير / المطبخ</span>
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant={activePreviewTab === "both" ? "default" : "ghost"}
+            className="text-xs font-bold gap-1 h-8"
+            onClick={() => setActivePreviewTab("both")}
+          >
+            <span>الفاتورتين معاً (كما تخرجان متصلتين)</span>
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant={activePreviewTab === "compare" ? "default" : "ghost"}
+            className="text-xs font-bold gap-1 h-8 text-amber-700 dark:text-amber-400"
+            onClick={() => setActivePreviewTab("compare")}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>مقارنة الشكلين (القياسي vs البديل)</span>
+          </Button>
+        </div>
+      </CardHeader>
+
+      <CardContent className="p-4 sm:p-6 bg-slate-100 dark:bg-slate-950 flex flex-col items-center">
+        {/* Toggle Bar between Style 1 and Style 2 */}
+        <div className="w-full max-w-lg mb-4 p-2 bg-white dark:bg-slate-900 border rounded-xl flex items-center justify-between gap-2 shadow-xs">
+          <div className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+            <span>النمط المعتمد للطباعة:</span>
+            <span className={isAlt ? "text-blue-600 font-black" : "text-slate-900 dark:text-white font-black"}>
+              {isAlt ? "الطراز البديل الموفر للورق" : "الطراز القياسي الكامل"}
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Button
+              type="button"
+              size="sm"
+              variant={!isAlt ? "default" : "outline"}
+              className="text-[11px] font-bold h-7 px-2"
+              onClick={() => setField("useAlternativeReceiptStyle", false)}
+            >
+              الشكل 1: القياسي
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={isAlt ? "default" : "outline"}
+              className="text-[11px] font-bold h-7 px-2 bg-blue-600 hover:bg-blue-700 text-white"
+              onClick={() => setField("useAlternativeReceiptStyle", true)}
+            >
+              الشكل 2: البديل الموفر
+            </Button>
+          </div>
+        </div>
+
+        {/* Content Container */}
+        {activePreviewTab === "compare" ? (
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl">
+            {/* Style 1: Standard */}
+            <div className="bg-white dark:bg-slate-900 border rounded-xl p-3 shadow-md">
+              <div className="text-xs font-black text-center mb-2 pb-1 border-b text-slate-700 dark:text-slate-300">
+                الشكل الأول: الطراز القياسي الكامل
+              </div>
+              <div className="p-2 border border-slate-200 rounded-lg bg-white overflow-hidden">
+                <MasterReceiptSlip
+                  order={sampleOrder}
+                  settings={{ ...form, useAlternativeReceiptStyle: false }}
+                  cashierName="مدير النظام"
+                  copyLabel="نسخة العميل"
+                />
+              </div>
+              <Button
+                type="button"
+                variant={!isAlt ? "secondary" : "outline"}
+                size="sm"
+                className="w-full mt-3 text-xs font-bold"
+                onClick={() => setField("useAlternativeReceiptStyle", false)}
+              >
+                {!isAlt ? "✅ مفعّل حالياً" : "اعتماد هذا الشكل"}
+              </Button>
+            </div>
+
+            {/* Style 2: Alternative */}
+            <div className="bg-white dark:bg-slate-900 border-2 border-blue-500 rounded-xl p-3 shadow-md">
+              <div className="text-xs font-black text-center mb-2 pb-1 border-b text-blue-700 dark:text-blue-400">
+                الشكل الثاني: الطراز البديل القصير (الموفر للورق)
+              </div>
+              <div className="p-2 border border-slate-200 rounded-lg bg-white overflow-hidden">
+                <MasterReceiptSlip
+                  order={sampleOrder}
+                  settings={{ ...form, useAlternativeReceiptStyle: true }}
+                  cashierName="مدير النظام"
+                  copyLabel="خاصة بالزبون"
+                />
+              </div>
+              <Button
+                type="button"
+                variant={isAlt ? "default" : "outline"}
+                size="sm"
+                className="w-full mt-3 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={() => setField("useAlternativeReceiptStyle", true)}
+              >
+                {isAlt ? "✅ مفعّل حالياً (مطابق للصورة)" : "اعتماد هذا الشكل الموفر"}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div
+            id="settings-live-receipt-container"
+            className="bg-white border-2 border-slate-300 rounded-xl shadow-lg p-4 max-w-sm w-full mx-auto overflow-hidden transition-all duration-200"
+          >
+            {activePreviewTab === "customer" && (
+              <MasterReceiptSlip
+                order={sampleOrder}
+                settings={form}
+                cashierName="مدير النظام"
+                copyLabel={isAlt ? "خاصة بالزبون" : "نسخة العميل"}
+              />
+            )}
+
+            {activePreviewTab === "dept" && (
+              <DeptReceiptSlip
+                order={sampleOrder}
+                dept={sampleDeptGroup.dept}
+                items={sampleDeptGroup.items}
+                settings={form}
+                cashierName="مدير النظام"
+              />
+            )}
+
+            {activePreviewTab === "both" && (
+              <div className="space-y-0">
+                <MasterReceiptSlip
+                  order={sampleOrder}
+                  settings={form}
+                  cashierName="مدير النظام"
+                  copyLabel={isAlt ? "خاصة بالزبون" : "نسخة العميل"}
+                />
+                <div className="border-t border-dashed border-black my-2 pt-2 text-center text-[9px] text-gray-500">
+                  ✂️ خط فصل متصل على الرول الحراري (بدون مسافة فارغة)
+                </div>
+                <DeptReceiptSlip
+                  order={sampleOrder}
+                  dept={sampleDeptGroup.dept}
+                  items={sampleDeptGroup.items}
+                  settings={form}
+                  cashierName="مدير النظام"
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
